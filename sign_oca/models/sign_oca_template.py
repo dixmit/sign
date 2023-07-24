@@ -1,0 +1,90 @@
+# Copyright 2023 Dixmit
+# License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
+
+from odoo import fields, models
+
+
+class SignOcaTemplate(models.Model):
+
+    _name = "sign.oca.template"
+    _description = "Sign Oca Template"  # TODO
+
+    name = fields.Char(required=True)
+    data = fields.Binary(attachment=True, required=True)
+    filename = fields.Char()
+    item_ids = fields.One2many("sign.oca.template.item", inverse_name="template_id")
+
+    def configure(self):
+        self.ensure_one()
+        return {
+            "type": "ir.actions.client",
+            "tag": "sign_oca_configure",
+            "name": self.name,
+            "params": {
+                "res_model": self._name,
+                "res_id": self.id,
+            },
+        }
+
+    def get_info(self):
+        self.ensure_one()
+        return {
+            "name": self.name,
+            "items": {item.id: item.get_info() for item in self.item_ids},
+            "roles": [
+                {"id": role.id, "name": role.name}
+                for role in self.env["sign.oca.role"].search([])
+            ],
+            "fields": [
+                {"id": field.id, "name": field.name}
+                for field in self.env["sign.oca.field"].search([])
+            ],
+        }
+
+    def delete_item(self, item_id):
+        self.ensure_one()
+        item = self.item_ids.browse(item_id)
+        assert item.template_id == self
+        item.unlink()
+
+    def set_item_data(self, item_id, vals):
+        self.ensure_one()
+        item = self.env["sign.oca.template.item"].browse(item_id)
+        assert item.template_id == self
+        item.write(vals)
+
+    def add_item(self, item_vals):
+        self.ensure_one()
+        item_vals["template_id"] = self.id
+        return self.env["sign.oca.template.item"].create(item_vals).get_info()
+
+
+class SignOcaTemplateItem(models.Model):
+
+    _name = "sign.oca.template.item"
+    _description = "Sign Oca Template Item"  # TODO
+
+    template_id = fields.Many2one("sign.oca.template", required=True)
+    field_id = fields.Many2one("sign.oca.field")
+    role_id = fields.Many2one("sign.oca.role")
+    required = fields.Boolean()
+    # If no role, it will be editable by everyone...
+    page = fields.Integer(required=True)
+    position_x = fields.Float(required=True)
+    position_y = fields.Float(required=True)
+    width = fields.Float()
+    height = fields.Float()
+
+    def get_info(self):
+        self.ensure_one()
+        return {
+            "id": self.id,
+            "field_id": self.field_id.id,
+            "name": self.field_id.name,
+            "role": self.role_id.id,
+            "page": self.page,
+            "position_x": self.position_x,
+            "position_y": self.position_y,
+            "width": self.width,
+            "height": self.height,
+        }

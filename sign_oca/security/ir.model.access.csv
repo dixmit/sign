@@ -1,0 +1,10 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+edit_sign_template,edit_sign_template,model_sign_oca_template,base.group_system,1,1,1,1
+edit_sign_template_item,edit_sign_template_item,model_sign_oca_template_item,base.group_system,1,1,1,1
+edit_sign_role,edit_sign_role,model_sign_oca_role,base.group_system,1,1,1,1
+edit_sign_field,edit_sign_field,model_sign_oca_field,base.group_system,1,1,1,1
+edit_sign_request,edit_sign_field,model_sign_oca_request,base.group_system,1,1,1,1
+edit_sign_request_field,edit_sign_field,model_sign_oca_request_field,base.group_system,1,1,1,1
+edit_sign_request_signer,edit_sign_field,model_sign_oca_request_signer,base.group_system,1,1,1,1
+edit_sign_generate,edit_sign_field,model_sign_oca_template_generate,base.group_system,1,1,1,1
+edit_sign_generate_signer,edit_sign_field,model_sign_oca_template_generate_signer,base.group_system,1,1,1,1

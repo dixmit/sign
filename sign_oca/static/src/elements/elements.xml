@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+
+    <t t-name="sign_oca.sign_iframe_field_text">
+        <input
+            style="width:100%;height:100%"
+            type="text"
+            t-att-tabindex="-1"
+            t-att-value="item.value_text? item.value_text: undefined"
+            t-if="item.to_sign"
+        />
+        <div
+            style="width:100%;height:100%"
+            t-esc="item.value_text? item.value_text: undefined"
+            t-else=""
+        />
+    </t>
+</templates>

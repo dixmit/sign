@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <template
+        id="assets_backend"
+        name="oca_sign_assets"
+        inherit_id="web.assets_backend"
+    >
+        <xpath expr="." position="inside">
+            <link rel="stylesheet" href="/sign_oca/static/src/scss/sign_oca.scss" />
+            <script
+                type="text/javascript"
+                src="/sign_oca/static/src/components/sign_oca_pdf_common/sign_oca_pdf_common.js"
+            />
+            <script
+                type="text/javascript"
+                src="/sign_oca/static/src/elements/registry.js"
+            />
+            <script
+                type="text/javascript"
+                src="/sign_oca/static/src/elements/text.js"
+            />
+            <script
+                type="text/javascript"
+                src="/sign_oca/static/src/components/sign_oca_pdf/sign_oca_pdf.js"
+            />
+            <script
+                type="text/javascript"
+                src="/sign_oca/static/src/components/sign_oca_configure/sign_oca_configure.js"
+            />
+        </xpath>
+    </template>
+    <template id="sign_assets">
+            <link rel="stylesheet" href="/sign_oca/static/src/scss/sign.scss" />
+            <link
+            rel="stylesheet"
+            type="text/css"
+            href="/web/static/lib/jquery.ui/jquery-ui.css"
+        />
+            <link
+            rel="stylesheet"
+            type="text/css"
+            href="/web/static/lib/fontawesome/css/font-awesome.css"
+        />
+            <!--<script type="text/javascript" src="/web/static/lib/jquery/jquery.js"></script>
+            <script type="text/javascript" src="/web/static/lib/jquery.ui/jquery-ui.js"></script>-->
+    </template>
+</odoo>

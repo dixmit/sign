@@ -1,0 +1,28 @@
+.o_sign_oca_field {
+    background-color: yellow;
+    &.sign_oca_selected {
+        background-color: red;
+    }
+}
+.o_sign_oca_field_config {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+.o_sign_oca_draggable {
+    cursor: move;
+}
+.o_sign_oca_resize {
+    cursor: se-resize;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+}
+.o_sign_oca_context_menu {
+    position: absolute;
+    background-color: red;
+    top: 0;
+    left: 0;
+}

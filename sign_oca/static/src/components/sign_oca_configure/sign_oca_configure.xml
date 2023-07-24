@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+    <t t-name="sign_oca.sign_iframe_field_configure">
+        <div
+            class="o_sign_oca_field"
+            t-attf-data-field="id"
+            t-attf-style="position:absolute;top:#{position_y}%; left: #{position_x}%; width: #{width}%;height: #{height}%"
+        >
+            <span
+                class="fa fa-arrows o_sign_oca_draggable"
+                role="img"
+                aria-label="Signature configuration"
+                title="Signature configuration"
+            />
+            <span class="o_placeholder" t-esc="name" />
+            <div class="o_sign_oca_resize fa fa-arrows-alt" style="z-index: 90;" />
+
+        </div>
+    </t>
+    <t t-name="sign_oca.sign_iframe_contextmenu">
+        <div class="o_sign_oca_context_menu" t-attf-style="top: #{top};left: #{left}">
+            <t t-foreach="info.fields" t-as="field">
+                <div
+                    class="o_sign_oca_context_menu_item"
+                    t-att-data-field="field.id"
+                    t-esc="field.name"
+                    t-att-data-page="page_id"
+                />
+            </t>
+        </div>
+    </t>
+    <t t-name="sign_oca.sign_oca_field_edition">
+        <div>
+            <select name="field_id">
+                <t t-foreach="info.fields" t-as="field">
+                    <option
+                        t-att-value="field.id"
+                        t-esc="field.name"
+                        t-att-selected="item.field_id === field.id ? 'selected': None"
+                    />
+                </t>
+            </select>
+            <select name="role_id">
+                <t t-foreach="info.roles" t-as="role">
+                    <option
+                        t-att-value="role.id"
+                        t-esc="role.name"
+                        t-att-selected="item.role_id === role.id ? 'selected': None"
+                    />
+                </t>
+            </select>
+        </div>
+    </t>
+</templates>

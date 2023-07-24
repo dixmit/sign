@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2023 Dixmit
+     License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
+<odoo>
+
+    <record model="ir.ui.view" id="sign_oca_request_form_view">
+        <field name="name">sign.oca.request.form (in sign_oca)</field>
+        <field name="model">sign.oca.request</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                </header>
+                <sheet>
+                    <group>
+                        <field name="template_id" />
+                        <field name="signed_data" />
+                    </group>
+                </sheet>
+                <div class="oe_chatter" />
+            </form>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="sign_oca_request_search_view">
+        <field name="name">sign.oca.request.search (in sign_oca)</field>
+        <field name="model">sign.oca.request</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="template_id" />
+            </search>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="sign_oca_request_tree_view">
+        <field name="name">sign.oca.request.tree (in sign_oca)</field>
+        <field name="model">sign.oca.request</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="template_id" />
+                <button
+                    name="sign"
+                    type="object"
+                    string="Sign"
+                    attrs="{'invisible': [('to_sign', '=', False)]}"
+                />
+                <field name="to_sign" invisible="1" />
+            </tree>
+        </field>
+    </record>
+
+    <record model="ir.actions.act_window" id="sign_oca_request_act_window">
+        <field name="name">Sign Oca Request</field>
+        <field name="res_model">sign.oca.request</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[]</field>
+        <field name="context">{}</field>
+    </record>
+
+    <record model="ir.ui.menu" id="sign_oca_request_menu">
+        <field name="name">Sign Oca Request</field>
+        <field name="parent_id" ref="sign_oca_root_menu" />
+        <field name="action" ref="sign_oca_request_act_window" />
+        <field name="sequence" eval="30" />
+    </record>
+
+</odoo>

@@ -15,6 +15,7 @@
                     <!-- TODO -->
                     <group>
                         <field name="name" />
+                        <field name="field_type" />
                     </group>
                 </sheet>
                 <div class="oe_chatter" />
@@ -44,7 +45,7 @@
     </record>
 
     <record model="ir.actions.act_window" id="sign_oca_field_act_window">
-        <field name="name">Sign Oca Field</field> <!-- TODO -->
+        <field name="name">Fields</field> <!-- TODO -->
         <field name="res_model">sign.oca.field</field>
         <field name="view_mode">tree,form</field>
         <field name="domain">[]</field>
@@ -52,8 +53,8 @@
     </record>
 
     <record model="ir.ui.menu" id="sign_oca_field_menu">
-        <field name="name">Sign Oca Field</field>
-        <field name="parent_id" ref="sign_oca_root_menu" /> <!-- TODO -->
+        <field name="name">Fields</field>
+        <field name="parent_id" ref="sign_oca_settings_menu" /> <!-- TODO -->
         <field name="action" ref="sign_oca_field_act_window" />
         <field name="sequence" eval="16" /> <!-- TODO -->
     </record>

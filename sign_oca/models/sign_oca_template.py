@@ -1,7 +1,7 @@
 # Copyright 2023 Dixmit
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
-from odoo import fields, models
+from odoo import api, fields, models
 
 
 class SignOcaTemplate(models.Model):
@@ -66,7 +66,7 @@ class SignOcaTemplateItem(models.Model):
 
     template_id = fields.Many2one("sign.oca.template", required=True)
     field_id = fields.Many2one("sign.oca.field")
-    role_id = fields.Many2one("sign.oca.role")
+    role_id = fields.Many2one("sign.oca.role", default=lambda r: r._get_default_role())
     required = fields.Boolean()
     # If no role, it will be editable by everyone...
     page = fields.Integer(required=True)
@@ -74,6 +74,10 @@ class SignOcaTemplateItem(models.Model):
     position_y = fields.Float(required=True)
     width = fields.Float()
     height = fields.Float()
+
+    @api.model
+    def _get_default_role(self):
+        return self.env.ref("sign_oca.sign_role_customer")
 
     def get_info(self):
         self.ensure_one()

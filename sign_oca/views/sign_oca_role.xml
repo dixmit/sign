@@ -41,7 +41,7 @@
     </record>
 
     <record model="ir.actions.act_window" id="sign_oca_role_act_window">
-        <field name="name">Sign Oca Role</field> <!-- TODO -->
+        <field name="name">Roles</field> <!-- TODO -->
         <field name="res_model">sign.oca.role</field>
         <field name="view_mode">tree,form</field>
         <field name="domain">[]</field>
@@ -49,8 +49,8 @@
     </record>
 
     <record model="ir.ui.menu" id="sign_oca_role_menu">
-        <field name="name">Sign Oca Role</field>
-        <field name="parent_id" ref="sign_oca_root_menu" />
+        <field name="name">Roles</field>
+        <field name="parent_id" ref="sign_oca_settings_menu" />
         <field name="action" ref="sign_oca_role_act_window" />
         <field name="sequence" eval="16" />
     </record>

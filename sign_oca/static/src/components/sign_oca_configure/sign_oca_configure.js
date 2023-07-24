@@ -52,7 +52,7 @@ odoo.define(
                 this.iframe.el.contentDocument.addEventListener(
                     "click",
                     (ev) => {
-                        if (!this.contextMenu && !this.creatingItem) {
+                        if (this.contextMenu && !this.creatingItem) {
                             if (!this.contextMenu[0].contains(ev.target)) {
                                 this.contextMenu.remove();
                                 this.contextMenu = undefined;

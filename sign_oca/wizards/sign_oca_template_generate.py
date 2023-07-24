@@ -7,6 +7,7 @@ from odoo import fields, models
 class SignOcaTemplateGenerate(models.TransientModel):
 
     _name = "sign.oca.template.generate"
+    _description = "Generate a signature request"
 
     def _default_signers(self):
         template = self.env["sign.oca.template"].browse(
@@ -54,12 +55,14 @@ class SignOcaTemplateGenerate(models.TransientModel):
 
     def generate(self):
         request = self._generate()
+        if self.env.user.partner_id in request.signer_ids.partner_id:
+            return request.sign()
         return request.get_formview_action()
 
 
 class SignOcaTemplateGenerateSigner(models.TransientModel):
-
     _name = "sign.oca.template.generate.signer"
+    _description = "Signature request signers"
 
     wizard_id = fields.Many2one("sign.oca.template.generate.signer")
     role_id = fields.Many2one("sign.oca.role", required=True, readonly=True)

@@ -49,7 +49,7 @@
     </record>
 
     <record model="ir.actions.act_window" id="sign_oca_request_act_window">
-        <field name="name">Sign Oca Request</field>
+        <field name="name">Sign Requests</field>
         <field name="res_model">sign.oca.request</field>
         <field name="view_mode">tree,form</field>
         <field name="domain">[]</field>
@@ -57,7 +57,7 @@
     </record>
 
     <record model="ir.ui.menu" id="sign_oca_request_menu">
-        <field name="name">Sign Oca Request</field>
+        <field name="name">Requests</field>
         <field name="parent_id" ref="sign_oca_root_menu" />
         <field name="action" ref="sign_oca_request_act_window" />
         <field name="sequence" eval="30" />

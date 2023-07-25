@@ -21,6 +21,12 @@ odoo.define(
                     this.iframe.el.contentDocument.getElementsByClassName("textLayer"),
                     (textLayer) => {
                         var page = textLayer.parentElement;
+
+                        textLayer.addEventListener("mousedown", (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            return false;
+                        });
                         textLayer.addEventListener("contextmenu", (e) => {
                             e.preventDefault();
                             e.stopPropagation();
@@ -53,10 +59,7 @@ odoo.define(
                     "click",
                     (ev) => {
                         if (this.contextMenu && !this.creatingItem) {
-                            if (!this.contextMenu[0].contains(ev.target)) {
-                                this.contextMenu.remove();
-                                this.contextMenu = undefined;
-                            } else {
+                            if (this.contextMenu[0].contains(ev.target)) {
                                 this.creatingItem = true;
                                 this.env.services
                                     .rpc({
@@ -91,6 +94,9 @@ odoo.define(
                                         this.contextMenu = undefined;
                                         this.creatingItem = false;
                                     });
+                            } else {
+                                this.contextMenu.remove();
+                                this.contextMenu = undefined;
                             }
                         }
                     },
@@ -108,8 +114,14 @@ odoo.define(
                     "o_sign_oca_resize"
                 );
                 signatureItem[0].addEventListener(
-                    "click",
+                    "mouseup",
                     (e) => {
+                        if (
+                            e.target.classList.contains("o_sign_oca_resize") ||
+                            e.target.classList.contains("o_sign_oca_draggable")
+                        ) {
+                            return;
+                        }
                         var target = e.currentTarget;
                         // TODO: Open Dialog for configuration
                         var dialog = new Dialog(this, {
@@ -190,134 +202,124 @@ odoo.define(
                     },
                     true
                 );
-                dragItem.addEventListener(
-                    "drag",
-                    (e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        var target = $(e.currentTarget).parent();
-                        var position = target.parent()[0].getBoundingClientRect();
-                        var left =
-                            (Math.max(
-                                0,
-                                Math.min(position.width, e.pageX - position.x)
-                            ) *
-                                100) /
-                            position.width;
-                        var top =
-                            (Math.max(
-                                0,
-                                Math.min(position.height, e.pageY - position.y)
-                            ) *
-                                100) /
-                            position.height;
-                        target.css("left", left + "%");
-                        target.css("top", top + "%");
-                    },
-                    true
-                );
-                dragItem.addEventListener(
-                    "dragend",
-                    (e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        var target = $(e.currentTarget).parent();
-                        var position = target.parent()[0].getBoundingClientRect();
-                        var left =
-                            (Math.max(
-                                0,
-                                Math.min(position.width, e.pageX - position.x)
-                            ) *
-                                100) /
-                            position.width;
-                        var top =
-                            (Math.max(
-                                0,
-                                Math.min(position.height, e.pageY - position.y)
-                            ) *
-                                100) /
-                            position.height;
-                        target.css("left", left + "%");
-                        target.css("top", top + "%");
-                        item.position_x = left;
-                        item.position_y = top;
-                        this.env.services.rpc({
-                            model: this.props.model,
-                            method: "set_item_data",
-                            args: [
-                                [this.props.res_id],
-                                item.id,
-                                {
-                                    position_x: left,
-                                    position_y: top,
-                                },
-                            ],
-                        });
-                    },
-                    true
-                );
+                dragItem.addEventListener("mousedown", (mousedownEvent) => {
+                    mousedownEvent.preventDefault();
+                    var parentPage = mousedownEvent.target.parentElement.parentElement;
+                    this.movingItem = mousedownEvent.target.parentElement;
+                    var mousemove = this._onDragItem.bind(this);
+                    parentPage.addEventListener("mousemove", mousemove);
+                    parentPage.addEventListener(
+                        "mouseup",
+                        (mouseupEvent) => {
+                            mouseupEvent.currentTarget.removeEventListener(
+                                "mousemove",
+                                mousemove
+                            );
+                            var target = $(this.movingItem);
+                            var position = target.parent()[0].getBoundingClientRect();
+                            var left =
+                                (Math.max(
+                                    0,
+                                    Math.min(
+                                        position.width,
+                                        mouseupEvent.pageX - position.x
+                                    )
+                                ) *
+                                    100) /
+                                position.width;
+                            var top =
+                                (Math.max(
+                                    0,
+                                    Math.min(
+                                        position.height,
+                                        mouseupEvent.pageY - position.y
+                                    )
+                                ) *
+                                    100) /
+                                position.height;
+                            target.css("left", left + "%");
+                            target.css("top", top + "%");
+                            item.position_x = left;
+                            item.position_y = top;
+                            this.env.services.rpc({
+                                model: this.props.model,
+                                method: "set_item_data",
+                                args: [
+                                    [this.props.res_id],
+                                    item.id,
+                                    {
+                                        position_x: left,
+                                        position_y: top,
+                                    },
+                                ],
+                            });
+                            this.movingItem = undefined;
+                        },
+                        {once: true}
+                    );
+                });
                 _.each(resizeItems, (resizeItem) => {
-                    resizeItem.addEventListener("drag", (e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        var target = $(e.currentTarget).parent();
-                        var targetPosition = e.currentTarget.getBoundingClientRect();
-                        var itemPosition = target[0].getBoundingClientRect();
-                        var pagePosition = target.parent()[0].getBoundingClientRect();
-                        var width =
-                            (Math.max(
-                                0,
-                                e.pageX + targetPosition.width - itemPosition.x
-                            ) *
-                                100) /
-                            pagePosition.width;
-                        var height =
-                            (Math.max(
-                                0,
-                                e.pageY + targetPosition.height - itemPosition.y
-                            ) *
-                                100) /
-                            pagePosition.height;
-                        target.css("width", width + "%");
-                        target.css("height", height + "%");
-                    });
-                    resizeItem.addEventListener("dragend", (e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        var target = $(e.currentTarget).parent();
-                        var targetPosition = e.currentTarget.getBoundingClientRect();
-                        var itemPosition = target[0].getBoundingClientRect();
-                        var pagePosition = target.parent()[0].getBoundingClientRect();
-                        var width =
-                            (Math.max(
-                                0,
-                                e.pageX + targetPosition.width - itemPosition.x
-                            ) *
-                                100) /
-                            pagePosition.width;
-                        var height =
-                            (Math.max(
-                                0,
-                                e.pageY + targetPosition.height - itemPosition.y
-                            ) *
-                                100) /
-                            pagePosition.height;
-                        target.css("width", width + "%");
-                        target.css("height", height + "%");
-                        item.width = width;
-                        item.height = height;
-                        this.env.services.rpc({
-                            model: this.props.model,
-                            method: "set_item_data",
-                            args: [
-                                [this.props.res_id],
-                                item.id,
-                                {
-                                    width: width,
-                                    height: height,
-                                },
-                            ],
-                        });
+                    resizeItem.addEventListener("mousedown", (mousedownEvent) => {
+                        mousedownEvent.preventDefault();
+                        var parentPage =
+                            mousedownEvent.target.parentElement.parentElement;
+                        this.resizingItem = mousedownEvent.target.parentElement;
+                        var mousemove = this._onResizeItem.bind(this);
+                        parentPage.addEventListener("mousemove", mousemove);
+                        parentPage.addEventListener(
+                            "mouseup",
+                            (mouseupEvent) => {
+                                mouseupEvent.stopPropagation();
+                                mouseupEvent.preventDefault();
+                                mouseupEvent.currentTarget.removeEventListener(
+                                    "mousemove",
+                                    mousemove
+                                );
+                                var target = $(this.resizingItem);
+                                var targetPosition = target
+                                    .find(".o_sign_oca_resize")[0]
+                                    .getBoundingClientRect();
+                                var itemPosition = target[0].getBoundingClientRect();
+                                var pagePosition = target
+                                    .parent()[0]
+                                    .getBoundingClientRect();
+                                var width =
+                                    (Math.max(
+                                        0,
+                                        mouseupEvent.pageX +
+                                            targetPosition.width -
+                                            itemPosition.x
+                                    ) *
+                                        100) /
+                                    pagePosition.width;
+                                var height =
+                                    (Math.max(
+                                        0,
+                                        mouseupEvent.pageY +
+                                            targetPosition.height -
+                                            itemPosition.y
+                                    ) *
+                                        100) /
+                                    pagePosition.height;
+                                target.css("width", width + "%");
+                                target.css("height", height + "%");
+                                item.width = width;
+                                item.height = height;
+                                this.env.services.rpc({
+                                    model: this.props.model,
+                                    method: "set_item_data",
+                                    args: [
+                                        [this.props.res_id],
+                                        item.id,
+                                        {
+                                            width: width,
+                                            height: height,
+                                        },
+                                    ],
+                                });
+                            },
+                            {once: true}
+                        );
                     });
                 });
                 return signatureItem;
@@ -325,7 +327,44 @@ odoo.define(
                 console.log(this.iframe.el.contentDocument.getElementsByClassName('page')[item.page - 1].__proto__)
                 component.mount(this.iframe.el.contentDocument.getElementsByClassName('page')[item.page - 1])*/
             }
+            _onResizeItem(e) {
+                e.stopPropagation();
+                e.preventDefault();
+                var target = $(this.resizingItem);
+                var targetPosition = target
+                    .find(".o_sign_oca_resize")[0]
+                    .getBoundingClientRect();
+                var itemPosition = target[0].getBoundingClientRect();
+                var pagePosition = target.parent()[0].getBoundingClientRect();
+                var width =
+                    (Math.max(0, e.pageX + targetPosition.width - itemPosition.x) *
+                        100) /
+                    pagePosition.width;
+                var height =
+                    (Math.max(0, e.pageY + targetPosition.height - itemPosition.y) *
+                        100) /
+                    pagePosition.height;
+                target.css("width", width + "%");
+                target.css("height", height + "%");
+            }
+            _onDragItem(e) {
+                e.stopPropagation();
+                e.preventDefault();
+                var target = $(this.movingItem);
+                var position = target.parent()[0].getBoundingClientRect();
+                var left =
+                    (Math.max(0, Math.min(position.width, e.pageX - position.x)) *
+                        100) /
+                    position.width;
+                var top =
+                    (Math.max(0, Math.min(position.height, e.pageY - position.y)) *
+                        100) /
+                    position.height;
+                target.css("left", left + "%");
+                target.css("top", top + "%");
+            }
         }
+
         const SignOcaConfigureAction = AbstractAction.extend({
             hasControlPanel: true,
             init: function (parent, action) {

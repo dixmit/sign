@@ -3,6 +3,12 @@
     &.sign_oca_selected {
         background-color: red;
     }
+    .o_placeholder {
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
 }
 .o_sign_oca_field_config {
     position: absolute;

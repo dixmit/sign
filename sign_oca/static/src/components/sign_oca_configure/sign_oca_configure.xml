@@ -12,8 +12,8 @@
                 aria-label="Signature configuration"
                 title="Signature configuration"
             />
-            <span class="o_placeholder" t-esc="name" />
             <div class="o_sign_oca_resize fa fa-arrows-alt" style="z-index: 90;" />
+            <span class="o_sign_placeholder" t-esc="name" />
 
         </div>
     </t>

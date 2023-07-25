@@ -64,6 +64,11 @@ class SignOcaTemplateGenerateSigner(models.TransientModel):
     _name = "sign.oca.template.generate.signer"
     _description = "Signature request signers"
 
+    def _get_default_partner(self):
+        return self.env.user.partner_id
+
     wizard_id = fields.Many2one("sign.oca.template.generate.signer")
     role_id = fields.Many2one("sign.oca.role", required=True, readonly=True)
-    partner_id = fields.Many2one("res.partner", required=True)
+    partner_id = fields.Many2one(
+        "res.partner", required=True, default=lambda r: r._get_default_partner()
+    )

@@ -3,3 +3,15 @@
     height: 100%;
     border: none;
 }
+
+html .o_web_client > .o_action_manager > .o_action > .o_content > .o_sign_oca_content {
+    height: 100%;
+    width: 100%;
+}
+html
+    .o_web_client
+    > .o_action_manager
+    > .o_action
+    > .o_content:has(.o_sign_oca_content) {
+    overflow: unset;
+}

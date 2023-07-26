@@ -98,6 +98,7 @@ odoo.define("sign_oca/static/src/components/sign_oca_pdf/sign_oca_pdf.js", funct
         }
     }
     const SignOcaPdfAction = AbstractAction.extend({
+        className: "o_sign_oca_content",
         hasControlPanel: true,
         init: function (parent, action) {
             this._super.apply(this, arguments);

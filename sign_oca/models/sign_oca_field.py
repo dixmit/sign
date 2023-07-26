@@ -9,5 +9,7 @@ class SignOcaField(models.Model):
     _description = "Signature Field Type"
 
     name = fields.Char(required=True)
-    field_type = fields.Selection([("text", "Text")], required=True, default="text")
+    field_type = fields.Selection(
+        [("text", "Text"), ("signature", "Signature")], required=True, default="text"
+    )
     default_value = fields.Char()

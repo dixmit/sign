@@ -1,11 +1,21 @@
-[ This file must be present and contains the usage instructions
-  for end-users. As all other rst files included in the README,
-  it MUST NOT contain reStructuredText sections
-  only body text (paragraphs, lists, tables, etc). Should you need
-  a more elaborate structure to explain the addon, please create a
-  Sphinx documentation (which may include this file as a "quick start"
-  section). ]
+Creation of templates
+~~~~~~~~~~~~~~~~~~~~~
 
-To use this module, you need to:
+*  Access `Sign / Templates`
+*  Create a new template
+*  Add a PDF File
+*  Access the configuration menu
+*  You can add a field by doing a right click inside a page
+*  Click on the field in order to delete or edit some configuration of it
+*  The template is autosaved
 
-#. Go to ...
+Sign a document
+~~~~~~~~~~~~~~~
+
+*  Access `Sign / Templates`
+*  Press the `Sign` button from a template
+*  Fill all the possible partners that will sign the document
+*  The signature action will be opened.
+*  There, you can fill all the data you need.
+*  Once you finish, press the sign button on the top
+*  When the last signer signs it, the final file will be generated as a PDF

@@ -98,6 +98,9 @@ odoo.define(
                 this.iframeLoaded.resolve();
             }
             postIframeField(item) {
+                if (this.items[item.id]) {
+                    this.items[item.id].remove();
+                }
                 var page = this.iframe.el.contentDocument.getElementsByClassName(
                     "page"
                 )[item.page - 1];

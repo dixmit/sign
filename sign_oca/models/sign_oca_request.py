@@ -6,7 +6,7 @@ from io import BytesIO
 
 from PyPDF2 import PdfFileReader, PdfFileWriter
 from reportlab.pdfgen import canvas
-from reportlab.platypus import Paragraph
+from reportlab.platypus import Image, Paragraph
 
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
@@ -127,6 +127,7 @@ class SignOcaRequestField(models.Model):
     item_id = fields.Many2one("sign.oca.template.item", required=True)
     signer_id = fields.Many2one("sign.oca.request.signer")
     value_text = fields.Char()
+    value_binary = fields.Binary()
 
     def check_signable(self):
         for record in self:
@@ -155,6 +156,8 @@ class SignOcaRequestField(models.Model):
             "width": self.item_id.width,
             "height": self.item_id.height,
             "value_text": self.value_text,
+            "value_binary": self.value_binary
+            and "data:image/png;base64,%s" % self.value_binary.decode("utf-8"),
         }
 
     def _get_pdf_page_text(self, box):
@@ -165,6 +168,27 @@ class SignOcaRequestField(models.Model):
             par.wrap(
                 self.item_id.width / 100 * float(box.getWidth()),
                 self.item_id.height / 100 * float(box.getHeight()),
+            )
+            par.drawOn(
+                can,
+                self.item_id.position_x / 100 * float(box.getWidth()),
+                (100 - self.item_id.position_y - self.item_id.height)
+                / 100
+                * float(box.getHeight()),
+            )
+        can.save()
+        packet.seek(0)
+        new_pdf = PdfFileReader(packet)
+        return new_pdf.getPage(0)
+
+    def _get_pdf_page_signature(self, box):
+        packet = BytesIO()
+        can = canvas.Canvas(packet, pagesize=(box.getWidth(), box.getHeight()))
+        if self.value_binary:
+            par = Image(
+                BytesIO(b64decode(self.value_binary)),
+                width=self.item_id.width / 100 * float(box.getWidth()),
+                height=self.item_id.height / 100 * float(box.getHeight()),
             )
             par.drawOn(
                 can,

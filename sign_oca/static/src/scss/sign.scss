@@ -1,7 +1,7 @@
 .o_sign_oca_field {
-    background-color: yellow;
+    background-color: rgba(0, 128, 128, 0.9);
     &.sign_oca_selected {
-        background-color: red;
+        background-color: rgba(0, 128, 128, 0.9);
     }
     .o_placeholder {
         -webkit-user-select: none;

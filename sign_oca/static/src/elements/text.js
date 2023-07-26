@@ -30,7 +30,7 @@ odoo.define("sign_oca.textElement", function (require) {
                 var next_items = _.filter(
                     parent.info.items,
                     (i) => i.tabindex > item.tabindex
-                );
+                ).sort((a, b) => a.tabindex - b.tabindex);
                 if (next_items.length > 0) {
                     ev.currentTarget.blur();
                     parent.items[next_items[0].id].dispatchEvent(

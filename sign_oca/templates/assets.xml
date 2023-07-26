@@ -21,6 +21,10 @@
             />
             <script
                 type="text/javascript"
+                src="/sign_oca/static/src/elements/signature.js"
+            />
+            <script
+                type="text/javascript"
                 src="/sign_oca/static/src/components/sign_oca_pdf/sign_oca_pdf.js"
             />
             <script
@@ -40,11 +44,6 @@
             rel="stylesheet"
             type="text/css"
             href="/web/static/lib/fontawesome/css/font-awesome.css"
-        />
-            <script type="text/javascript" src="/web/static/lib/jquery/jquery.js" />
-            <script
-            type="text/javascript"
-            src="/web/static/lib/jquery.ui/jquery-ui.js"
         />
     </template>
 </odoo>

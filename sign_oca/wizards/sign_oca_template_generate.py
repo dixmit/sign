@@ -55,6 +55,8 @@ class SignOcaTemplateGenerate(models.TransientModel):
 
     def generate(self):
         request = self._generate()
+        for signer in request.signer_ids:
+            signer._portal_ensure_token()
         if self.env.user.partner_id in request.signer_ids.partner_id:
             return request.sign()
         return request.get_formview_action()

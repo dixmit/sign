@@ -1,9 +1,12 @@
 import base64
+import io
 
 from odoo import http
+from odoo.exceptions import AccessError, MissingError
 from odoo.http import request
 
 from odoo.addons.base.models.assetsbundle import AssetsBundle
+from odoo.addons.portal.controllers.portal import CustomerPortal
 
 
 class SignController(http.Controller):
@@ -25,3 +28,94 @@ class SignController(http.Controller):
         content_base64 = base64.b64decode(content) if content else ""
         headers.append(("Content-Length", len(content_base64)))
         return request.make_response(content_base64, headers)
+
+
+class PortalSign(CustomerPortal):
+    @http.route(
+        ["/sign_oca/document/<int:signer_id>/<string:access_token>"],
+        type="http",
+        auth="public",
+        website=True,
+    )
+    def get_sign_oca_access(self, signer_id, access_token):
+        try:
+            signer_sudo = self._document_check_access(
+                "sign.oca.request.signer", signer_id, access_token
+            )
+        except (AccessError, MissingError):
+            return request.redirect("/my")
+        return request.render(
+            "sign_oca.portal_sign_document",
+            {
+                "doc": signer_sudo.request_id,
+                "partner": signer_sudo.partner_id,
+                "signer": signer_sudo,
+                "access_token": access_token,
+            },
+        )
+
+    @http.route(
+        ["/sign_oca/content/<int:signer_id>/<string:access_token>"],
+        type="http",
+        auth="public",
+        website=True,
+    )
+    def get_sign_oca_content_access(self, signer_id, access_token):
+        try:
+            signer_sudo = self._document_check_access(
+                "sign.oca.request.signer", signer_id, access_token
+            )
+        except (AccessError, MissingError):
+            return request.redirect("/my")
+        data = io.BytesIO(base64.standard_b64decode(signer_sudo.request_id.data))
+        return http.send_file(data)
+
+    @http.route(
+        ["/sign_oca/info/<int:signer_id>/<string:access_token>"],
+        type="json",
+        auth="public",
+        website=True,
+    )
+    def get_sign_oca_info_access(self, signer_id, access_token):
+        try:
+            signer_sudo = self._document_check_access(
+                "sign.oca.request.signer", signer_id, access_token
+            )
+        except (AccessError, MissingError):
+            return request.redirect("/my")
+        return signer_sudo.request_id.get_info(signer_sudo.partner_id)
+
+    @http.route(
+        ["/sign_oca/write/<int:signer_id>/<string:access_token>"],
+        type="json",
+        auth="public",
+        website=True,
+    )
+    def get_sign_oca_write_access(
+        self, signer_id, access_token, item_id=False, vals=False
+    ):
+        try:
+            signer_sudo = self._document_check_access(
+                "sign.oca.request.signer", signer_id, access_token
+            )
+        except (AccessError, MissingError):
+            return request.redirect("/my")
+        if item_id and vals:
+            signer_sudo.request_id.write({"item_ids": [(1, item_id, vals)]})
+        return True
+
+    @http.route(
+        ["/sign_oca/sign/<int:signer_id>/<string:access_token>"],
+        type="json",
+        auth="public",
+        website=True,
+    )
+    def get_sign_oca_sign_access(self, signer_id, access_token):
+        try:
+            signer_sudo = self._document_check_access(
+                "sign.oca.request.signer", signer_id, access_token
+            )
+        except (AccessError, MissingError):
+            return request.redirect("/my")
+        signer_sudo.request_id.action_sign(signer_sudo.partner_id.id)
+        return True

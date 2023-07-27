@@ -29,8 +29,46 @@
             />
             <script
                 type="text/javascript"
+                src="/sign_oca/static/src/components/sign_oca_pdf/sign_oca_pdf_action.js"
+            />
+            <script
+                type="text/javascript"
                 src="/sign_oca/static/src/components/sign_oca_configure/sign_oca_configure.js"
             />
+        </xpath>
+    </template>
+    <template
+        id="assets_frontend"
+        name="oca_sign_assets_frontend"
+        inherit_id="web.assets_frontend"
+    >
+        <xpath expr="." position="inside">
+            <link rel="stylesheet" href="/sign_oca/static/src/scss/sign_oca.scss" />
+            <script
+                type="text/javascript"
+                src="/sign_oca/static/src/components/sign_oca_pdf_common/sign_oca_pdf_common.js"
+            />
+            <script
+                type="text/javascript"
+                src="/sign_oca/static/src/components/sign_oca_pdf/sign_oca_pdf.js"
+            />
+            <script
+                type="text/javascript"
+                src="/sign_oca/static/src/elements/registry.js"
+            />
+            <script
+                type="text/javascript"
+                src="/sign_oca/static/src/elements/text.js"
+            />
+            <script
+                type="text/javascript"
+                src="/sign_oca/static/src/elements/signature.js"
+            />
+            <script
+                type="text/javascript"
+                src="/sign_oca/static/src/components/sign_oca_pdf_portal/sign_oca_pdf_portal.js"
+            />
+            <link rel="stylesheet" href="/sign_oca/static/src/scss/portal.scss" />
         </xpath>
     </template>
     <template id="sign_assets">
@@ -40,5 +78,29 @@
             type="text/css"
             href="/web/static/lib/fontawesome/css/font-awesome.css"
         />
+    </template>
+    <template id="portal_sign_document">
+        <t t-call="web.layout">
+            <t t-set="head">
+                <meta
+                    name="viewport"
+                    content="width=device-width, initial-scale=1, user-scalable=no"
+                />
+                <t t-call-assets="web.assets_common" t-js="false" />
+                <t t-call-assets="web.assets_frontend" t-js="false" />
+                <t t-call-assets="web.assets_common" t-css="false" />
+                <t t-call-assets="web.assets_frontend" t-css="false" />
+                <script type="text/javascript">
+                    odoo.define("sign.document_portal", function(require) {
+                        var ajax = require("web.ajax");
+                        var core = require("web.core");
+                        var document_signing = require("sign_oca.document_portal_base");
+                        document_signing.initDocumentToSign(<t
+                        t-raw="json.dumps({'access_token': access_token, 'signer_id': signer.id})"
+                    />);
+                    });
+                </script>
+            </t>
+        </t>
     </template>
 </odoo>

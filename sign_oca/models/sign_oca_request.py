@@ -37,9 +37,10 @@ class SignOcaRequest(models.Model):
                 len(record.item_ids.filtered(lambda r: r.item_id.role_id in roles)) > 0
             )
 
-    def action_sign(self):
+    def action_sign(self, partner_id=False):
         self.ensure_one()
-        partner_id = self.env.user.partner_id.id
+        if not partner_id:
+            partner_id = self.env.user.partner_id.id
         signers = self.signer_ids.filtered(
             lambda r: r.partner_id.id == partner_id and not r.signed
         )
@@ -84,14 +85,16 @@ class SignOcaRequest(models.Model):
             },
         }
 
-    def get_info(self):
+    def get_info(self, partner=None):
         self.ensure_one()
-        partner = self.env.user.partner_id
+        if not partner:
+            partner = self.env.user.partner_id
         result = {
             "name": self.template_id.name,
             "items": {},
             "to_sign": self.to_sign,
             "partner": {
+                "id": partner.id,
                 "name": partner.name,
                 "email": partner.email,
                 "phone": partner.phone,
@@ -119,8 +122,7 @@ class SignOcaRequest(models.Model):
             item_data = item.get_info()
             item_data["tabindex"] = tabindex
             item_data["to_sign"] = (
-                result["roles"][item.item_id.role_id.id]["partner_id"]
-                == self.env.user.partner_id.id
+                result["roles"][item.item_id.role_id.id]["partner_id"] == partner.id
             )
             tabindex += 1
             result["items"][item.id] = item_data
@@ -220,6 +222,7 @@ class SignOcaRequestField(models.Model):
 class SignOcaRequestSigner(models.Model):
 
     _name = "sign.oca.request.signer"
+    _inherit = "portal.mixin"
     _description = "Sign Request Value"
 
     request_id = fields.Many2one("sign.oca.request", required=True)

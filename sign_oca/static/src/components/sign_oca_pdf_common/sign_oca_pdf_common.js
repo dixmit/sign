@@ -11,12 +11,7 @@ odoo.define(
             constructor() {
                 super(...arguments);
                 this.field_template = "sign_oca.sign_iframe_field";
-                this.pdf_url =
-                    "/web/content/" +
-                    this.props.model +
-                    "/" +
-                    this.props.res_id +
-                    "/data";
+                this.pdf_url = this.getPdfUrl();
                 this.viewer_url =
                     "/web/static/lib/pdfjs/web/viewer.html?file=" + this.pdf_url;
                 this.iframe = useRef("sign_oca_iframe");
@@ -34,6 +29,15 @@ odoo.define(
                 onMounted(() => {
                     this.waitIframeLoaded();
                 });
+            }
+            getPdfUrl() {
+                return (
+                    "/web/content/" +
+                    this.props.model +
+                    "/" +
+                    this.props.res_id +
+                    "/data"
+                );
             }
             async willStart() {
                 this.info = await this.env.services.rpc({

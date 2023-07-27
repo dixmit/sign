@@ -59,7 +59,10 @@ odoo.define("sign_oca.signatureElement", function (require) {
                 var signature = this.nameAndSignature.getSignatureImageSrc();
                 this.item.value_binary = signature;
                 this.getParent().postIframeField(this.item);
-                this.getParent().env.services.rpc({
+                this.getParent().env.writeItem(this.item.id, {
+                    value_binary: this.nameAndSignature.getSignatureImage()[1],
+                });
+                /* This.getParent().env.services.rpc({
                     model: this.getParent().props.model,
                     method: "write",
                     args: [
@@ -77,6 +80,7 @@ odoo.define("sign_oca.signatureElement", function (require) {
                         },
                     ],
                 });
+                */
             }
             this.getParent().checkFilledAll();
             var next_items = _.filter(
@@ -96,10 +100,11 @@ odoo.define("sign_oca.signatureElement", function (require) {
             var input = $(
                 core.qweb.render("sign_oca.sign_iframe_field_signature", {item: item})
             )[0];
+            console.log(parent.info);
             signatureItem[0].addEventListener("focus_signature", () => {
                 var signatureOptions = {
                     fontColor: "DarkBlue",
-                    defaultName: parent.env.session.name,
+                    defaultName: parent.info.partner.name,
                 };
                 new SignatureDialog(parent, {signatureOptions, item}).open();
             });
@@ -108,21 +113,9 @@ odoo.define("sign_oca.signatureElement", function (require) {
                 ev.stopPropagation();
                 var signatureOptions = {
                     fontColor: "DarkBlue",
-                    defaultName: parent.env.session.name,
+                    defaultName: parent.info.partner.name,
                 };
                 new SignatureDialog(parent, {signatureOptions, item}).open();
-            });
-            input.addEventListener("change", (ev) => {
-                parent.env.services.rpc({
-                    model: parent.props.model,
-                    method: "write",
-                    args: [
-                        [parent.props.res_id],
-                        {item_ids: [[1, item.id, {value_text: ev.srcElement.value}]]},
-                    ],
-                });
-                item.value_text = ev.srcElement.value;
-                parent.checkFilledAll();
             });
             input.addEventListener("keydown", (ev) => {
                 if ((ev.keyCode || ev.which) !== 9) {

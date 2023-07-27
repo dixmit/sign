@@ -4,14 +4,15 @@ odoo.define("sign_oca.textElement", function (require) {
     const SignRegistry = require("sign_oca.SignRegistry");
     const textSignOca = {
         change: function (value, parent, item) {
-            parent.env.services.rpc({
+            /* Parent.env.services.rpc({
                 model: parent.props.model,
                 method: "write",
                 args: [
                     [parent.props.res_id],
                     {item_ids: [[1, item.id, {value_text: value}]]},
                 ],
-            });
+            });*/
+            parent.env.writeItem(item.id, {value_text: value});
             item.value_text = value;
             parent.checkFilledAll();
         },

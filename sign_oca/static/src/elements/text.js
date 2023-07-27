@@ -10,6 +10,15 @@ odoo.define("sign_oca.textElement", function (require) {
             signatureItem[0].addEventListener("focus_signature", () => {
                 input.focus();
             });
+            input.addEventListener("focus", (ev) => {
+                if (
+                    item.default_value &&
+                    !item.value_text &&
+                    parent.info.partner[item.default_value]
+                ) {
+                    ev.target.value = parent.info.partner[item.default_value];
+                }
+            });
             input.addEventListener("change", (ev) => {
                 parent.env.services.rpc({
                     model: parent.props.model,

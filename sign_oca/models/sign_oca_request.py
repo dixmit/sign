@@ -84,10 +84,16 @@ class SignOcaRequest(models.Model):
 
     def get_info(self):
         self.ensure_one()
+        partner = self.env.user.partner_id
         result = {
             "name": self.template_id.name,
             "items": {},
             "to_sign": self.to_sign,
+            "partner": {
+                "name": partner.name,
+                "email": partner.email,
+                "phone": partner.phone,
+            },
             "roles": {
                 signer.role_id.id: {
                     "id": signer.id,
@@ -158,6 +164,7 @@ class SignOcaRequestField(models.Model):
             "value_text": self.value_text,
             "value_binary": self.value_binary
             and "data:image/png;base64,%s" % self.value_binary.decode("utf-8"),
+            "default_value": self.item_id.field_id.default_value,
         }
 
     def _get_pdf_page_text(self, box):

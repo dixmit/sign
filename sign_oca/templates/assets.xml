@@ -38,11 +38,6 @@
             <link
             rel="stylesheet"
             type="text/css"
-            href="/web/static/lib/jquery.ui/jquery-ui.css"
-        />
-            <link
-            rel="stylesheet"
-            type="text/css"
             href="/web/static/lib/fontawesome/css/font-awesome.css"
         />
     </template>

@@ -97,7 +97,11 @@ odoo.define("sign_oca.signatureElement", function (require) {
                 core.qweb.render("sign_oca.sign_iframe_field_signature", {item: item})
             )[0];
             signatureItem[0].addEventListener("focus_signature", () => {
-                input.focus();
+                var signatureOptions = {
+                    fontColor: "DarkBlue",
+                    defaultName: parent.env.session.name,
+                };
+                new SignatureDialog(parent, {signatureOptions, item}).open();
             });
             input.addEventListener("click", (ev) => {
                 ev.preventDefault();

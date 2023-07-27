@@ -6,5 +6,4 @@ Detected issues
 Tasks
 ~~~~~
 
-*  Pre fill fields using partner data
 *  Make it work with unsigned partners?

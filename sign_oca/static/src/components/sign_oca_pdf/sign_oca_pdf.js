@@ -16,10 +16,11 @@ odoo.define("sign_oca/static/src/components/sign_oca_pdf/sign_oca_pdf.js", funct
             });
         }
         writeItem(item_id, vals) {
+            console.log(this);
             this.env.services.rpc({
-                model: parent.props.model,
+                model: this.props.model,
                 method: "write",
-                args: [[parent.props.res_id], {item_ids: [[1, item_id, vals]]}],
+                args: [[this.props.res_id], {item_ids: [[1, item_id, vals]]}],
             });
         }
         async willStart() {

@@ -5,6 +5,7 @@ from base64 import b64decode, b64encode
 from io import BytesIO
 
 from PyPDF2 import PdfFileReader, PdfFileWriter
+from reportlab.lib.styles import ParagraphStyle
 from reportlab.pdfgen import canvas
 from reportlab.platypus import Image, Paragraph
 
@@ -176,7 +177,7 @@ class SignOcaRequestField(models.Model):
         can = canvas.Canvas(packet, pagesize=(box.getWidth(), box.getHeight()))
         if not self.value_text:
             return False
-        par = Paragraph(self.value_text)
+        par = Paragraph(self.value_text, style=self.getParagraphStyle())
         par.wrap(
             self.item_id.width / 100 * float(box.getWidth()),
             self.item_id.height / 100 * float(box.getHeight()),
@@ -192,6 +193,9 @@ class SignOcaRequestField(models.Model):
         packet.seek(0)
         new_pdf = PdfFileReader(packet)
         return new_pdf.getPage(0)
+
+    def getParagraphStyle(self):
+        return ParagraphStyle(name="Oca Sign Style")
 
     def _get_pdf_page_signature(self, box):
         packet = BytesIO()

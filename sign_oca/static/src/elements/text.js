@@ -3,6 +3,18 @@ odoo.define("sign_oca.textElement", function (require) {
     const core = require("web.core");
     const SignRegistry = require("sign_oca.SignRegistry");
     const textSignOca = {
+        change: function (value, parent, item) {
+            parent.env.services.rpc({
+                model: parent.props.model,
+                method: "write",
+                args: [
+                    [parent.props.res_id],
+                    {item_ids: [[1, item.id, {value_text: value}]]},
+                ],
+            });
+            item.value_text = value;
+            parent.checkFilledAll();
+        },
         generate: function (parent, item, signatureItem) {
             var input = $(
                 core.qweb.render("sign_oca.sign_iframe_field_text", {item: item})
@@ -16,20 +28,17 @@ odoo.define("sign_oca.textElement", function (require) {
                     !item.value_text &&
                     parent.info.partner[item.default_value]
                 ) {
+                    this.change(
+                        parent.info.partner[item.default_value],
+                        parent,
+                        item,
+                        signatureItem
+                    );
                     ev.target.value = parent.info.partner[item.default_value];
                 }
             });
             input.addEventListener("change", (ev) => {
-                parent.env.services.rpc({
-                    model: parent.props.model,
-                    method: "write",
-                    args: [
-                        [parent.props.res_id],
-                        {item_ids: [[1, item.id, {value_text: ev.srcElement.value}]]},
-                    ],
-                });
-                item.value_text = ev.srcElement.value;
-                parent.checkFilledAll();
+                this.change(ev.srcElement.value, parent, item, signatureItem);
             });
             input.addEventListener("keydown", (ev) => {
                 if ((ev.keyCode || ev.which) !== 9) {

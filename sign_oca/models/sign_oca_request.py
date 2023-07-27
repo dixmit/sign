@@ -59,7 +59,9 @@ class SignOcaRequest(models.Model):
         for page_number in range(1, reader.numPages + 1):
             page = reader.getPage(page_number - 1)
             for item in self.item_ids.filtered(lambda r: r.item_id.page == page_number):
-                page.mergePage(item._get_pdf_page(page.mediaBox))
+                new_page = item._get_pdf_page(page.mediaBox)
+                if new_page:
+                    page.mergePage(new_page)
             output.addPage(page)
 
         output_stream = BytesIO()
@@ -170,19 +172,20 @@ class SignOcaRequestField(models.Model):
     def _get_pdf_page_text(self, box):
         packet = BytesIO()
         can = canvas.Canvas(packet, pagesize=(box.getWidth(), box.getHeight()))
-        if self.value_text:
-            par = Paragraph(self.value_text)
-            par.wrap(
-                self.item_id.width / 100 * float(box.getWidth()),
-                self.item_id.height / 100 * float(box.getHeight()),
-            )
-            par.drawOn(
-                can,
-                self.item_id.position_x / 100 * float(box.getWidth()),
-                (100 - self.item_id.position_y - self.item_id.height)
-                / 100
-                * float(box.getHeight()),
-            )
+        if not self.value_text:
+            return False
+        par = Paragraph(self.value_text)
+        par.wrap(
+            self.item_id.width / 100 * float(box.getWidth()),
+            self.item_id.height / 100 * float(box.getHeight()),
+        )
+        par.drawOn(
+            can,
+            self.item_id.position_x / 100 * float(box.getWidth()),
+            (100 - self.item_id.position_y - self.item_id.height)
+            / 100
+            * float(box.getHeight()),
+        )
         can.save()
         packet.seek(0)
         new_pdf = PdfFileReader(packet)
@@ -191,19 +194,20 @@ class SignOcaRequestField(models.Model):
     def _get_pdf_page_signature(self, box):
         packet = BytesIO()
         can = canvas.Canvas(packet, pagesize=(box.getWidth(), box.getHeight()))
-        if self.value_binary:
-            par = Image(
-                BytesIO(b64decode(self.value_binary)),
-                width=self.item_id.width / 100 * float(box.getWidth()),
-                height=self.item_id.height / 100 * float(box.getHeight()),
-            )
-            par.drawOn(
-                can,
-                self.item_id.position_x / 100 * float(box.getWidth()),
-                (100 - self.item_id.position_y - self.item_id.height)
-                / 100
-                * float(box.getHeight()),
-            )
+        if not self.value_binary:
+            return False
+        par = Image(
+            BytesIO(b64decode(self.value_binary)),
+            width=self.item_id.width / 100 * float(box.getWidth()),
+            height=self.item_id.height / 100 * float(box.getHeight()),
+        )
+        par.drawOn(
+            can,
+            self.item_id.position_x / 100 * float(box.getWidth()),
+            (100 - self.item_id.position_y - self.item_id.height)
+            / 100
+            * float(box.getHeight()),
+        )
         can.save()
         packet.seek(0)
         new_pdf = PdfFileReader(packet)

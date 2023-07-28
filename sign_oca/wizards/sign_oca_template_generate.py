@@ -75,7 +75,7 @@ class SignOcaTemplateGenerate(models.TransientModel):
                 mail_auto_delete=False,
                 email_layout_xmlid="mail.mail_notification_light",
             )
-        return request.sign
+        return request.sign()
 
 
 class SignOcaTemplateGenerateSigner(models.TransientModel):

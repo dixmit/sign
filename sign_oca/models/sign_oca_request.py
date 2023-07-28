@@ -233,3 +233,11 @@ class SignOcaRequestSigner(models.Model):
     partner_id = fields.Many2one("res.partner", required=True)
     role_id = fields.Many2one("sign.oca.role", required=True)
     signed = fields.Boolean()
+
+    def _compute_access_url(self):
+        super()._compute_access_url()
+        for record in self:
+            record.access_url = "/sign_oca/document/%s/%s" % (
+                record.id,
+                record.access_token,
+            )

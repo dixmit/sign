@@ -1,7 +1,7 @@
 # Copyright 2023 CreuBlana
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
-from odoo import fields, models
+from odoo import _, fields, models
 
 
 class SignOcaTemplateGenerate(models.TransientModel):
@@ -23,6 +23,8 @@ class SignOcaTemplateGenerate(models.TransientModel):
         inverse_name="wizard_id",
         default=lambda r: r._default_signers(),
     )
+    sign_now = fields.Boolean()
+    message = fields.Html()
 
     def _generate_vals(self):
         return {
@@ -57,9 +59,23 @@ class SignOcaTemplateGenerate(models.TransientModel):
         request = self._generate()
         for signer in request.signer_ids:
             signer._portal_ensure_token()
-        if self.env.user.partner_id in request.signer_ids.partner_id:
-            return request.sign()
-        return request.get_formview_action()
+            if self.sign_now and signer.partner_id == self.env.user.partner_id:
+                continue
+            view = self.env.ref("sign_oca.sign_oca_template_mail")
+            render_result = view._render(
+                {"record": signer, "body": self.message, "link": signer.access_url},
+                engine="ir.qweb",
+                minimal_qcontext=True,
+            )
+            self.env["mail.thread"].message_notify(
+                body=render_result,
+                partner_ids=signer.partner_id.ids,
+                subject=_("New document to sign"),
+                subtype_id=self.env.ref("mail.mt_comment").id,
+                mail_auto_delete=False,
+                email_layout_xmlid="mail.mail_notification_light",
+            )
+        return request.sign
 
 
 class SignOcaTemplateGenerateSigner(models.TransientModel):
@@ -67,7 +83,9 @@ class SignOcaTemplateGenerateSigner(models.TransientModel):
     _description = "Signature request signers"
 
     def _get_default_partner(self):
-        return self.env.user.partner_id
+        if self.env.context.get("default_sign_now"):
+            return self.env.user.partner_id
+        return False
 
     wizard_id = fields.Many2one("sign.oca.template.generate.signer")
     role_id = fields.Many2one("sign.oca.role", required=True, readonly=True)

@@ -93,7 +93,13 @@
                 <button
                     name="%(sign_oca_template_generate_act_window)s"
                     type="action"
+                    string="Send"
+                />
+                <button
+                    name="%(sign_oca_template_generate_act_window)s"
+                    type="action"
                     string="Sign now"
+                    context="{'default_sign_now': 1}"
                 />
             </tree>
         </field>

@@ -17,16 +17,41 @@ from odoo.exceptions import ValidationError
 class SignOcaRequest(models.Model):
 
     _name = "sign.oca.request"
+    _inherit = ["mail.thread", "mail.activity.mixin"]
     _description = "Sign Request"
 
+    name = fields.Char(required=True)
+    active = fields.Boolean(default=True)
     template_id = fields.Many2one("sign.oca.template")
     data = fields.Binary(required=True)
     signed = fields.Boolean()
     signed_data = fields.Binary(readonly=True)
-    signer_ids = fields.One2many("sign.oca.request.signer", inverse_name="request_id")
+    signer_ids = fields.One2many(
+        "sign.oca.request.signer", inverse_name="request_id", auto_join=True
+    )
+    state = fields.Selection(
+        [("sent", "Sent"), ("signed", "Signed"), ("cancel", "Cancelled")],
+        default="sent",
+        required=True,
+    )
+    signed_count = fields.Integer(compute="_compute_signed_count")
+    signer_count = fields.Integer(compute="_compute_signer_count")
     to_sign = fields.Boolean(compute="_compute_to_sign")
     signatory_data = fields.Serialized(default=lambda r: {}, readonly=True)
     current_hash = fields.Char(readonly=True)
+
+    def cancel(self):
+        self.write({"state": "cancel"})
+
+    @api.depends("signer_ids")
+    def _compute_signer_count(self):
+        for record in self:
+            record.signer_count = len(record.signer_ids)
+
+    @api.depends("signer_ids", "signer_ids.signed_on")
+    def _compute_signed_count(self):
+        for record in self:
+            record.signed_count = len(record.signer_ids.filtered(lambda r: r.signed_on))
 
     @api.depends("signer_ids.role_id", "signatory_data")
     @api.depends_context("uid")
@@ -37,13 +62,20 @@ class SignOcaRequest(models.Model):
                 and not r.signed_on
             ).mapped("role_id")
 
+    def _check_signed(self):
+        self.ensure_one()
+        if self.state != "sent":
+            return
+        if all(self.mapped("signer_ids.signed_on")):
+            self.state = "signed"
+
     def sign(self):
         self.ensure_one()
         signer = self.signer_ids.filtered(
             lambda r: r.partner_id == self.env.user.partner_id
         )
         if not signer:
-            return False
+            return self.get_formview_action()
         return {
             "type": "ir.actions.client",
             "tag": "sign_oca",
@@ -63,6 +95,7 @@ class SignOcaRequestSigner(models.Model):
 
     data = fields.Binary(related="request_id.data")
     request_id = fields.Many2one("sign.oca.request", required=True)
+    partner_name = fields.Char(related="partner_id.name")
     partner_id = fields.Many2one("res.partner", required=True)
     role_id = fields.Many2one("sign.oca.role", required=True)
     signed_on = fields.Datetime()
@@ -99,6 +132,8 @@ class SignOcaRequestSigner(models.Model):
             raise ValidationError(
                 _("Users %s has already signed the document") % self.partner_id.name
             )
+        if self.request_id.state != "sent":
+            raise ValidationError(_("Request cannot be signed"))
         self.signed_on = fields.Datetime.now()
         # current_hash = self.request_id.current_hash
         signatory_data = self.request_id.signatory_data
@@ -136,6 +171,7 @@ class SignOcaRequestSigner(models.Model):
             }
         )
         self.signature_hash = final_hash
+        self.request_id._check_signed()
         # TODO: Add a return
 
     def _check_signable(self, item):

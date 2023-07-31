@@ -22,7 +22,7 @@
                         <button
                             name="%(sign_oca_template_generate_act_window)s"
                             type="action"
-                            string="Sign now"
+                            string="Send to sign"
                             icon="fa-paint-brush"
                         />
                     </div>
@@ -82,6 +82,59 @@
         </field>
     </record>
 
+    <record model="ir.ui.view" id="sign_oca_template_kanban_view">
+        <field name="name">sign.oca.template.kanban (in sign_oca)</field>
+        <field name="model">sign.oca.template</field>
+        <field name="arch" type="xml">
+            <kanban quick_create="false" default_order="create_date desc">
+                <field name="name" />
+                <field name="create_date" />
+                <field name="create_uid" />
+                <templates>
+                    <div t-name="kanban-box" class="oe_kanban_global_click">
+                        <div class="oe_kanban_main">
+                            <div class="o_kanban_record_top">
+                                <div class="o_kanban_record_headings">
+                                    <div class="o_kanban_record_title">
+                                        <span class="ps-4"><field
+                                                name="display_name"
+                                            /></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="o_kanban_record_bottom">
+                                <div class="oe_kanban_bottom_left ">
+                                    <button
+                                        name="configure"
+                                        type="object"
+                                        class="btn btn-secondary btn-sm mt8"
+                                    >Configure</button>
+                                    <button
+                                        name="%(sign_oca_template_generate_act_window)s"
+                                        type="action"
+                                        class="btn btn-primary btn-sm mt8"
+                                    >Send</button>
+                                    <button
+                                        name="%(sign_oca_template_generate_act_window)s"
+                                        type="action"
+                                        context="{'default_sign_now': 1}"
+                                        class="btn btn-primary btn-sm mt8"
+                                    >Sign Now</button>
+                                </div>
+                                <div class="oe_kanban_bottom_right">
+                                    <field
+                                        name="create_uid"
+                                        widget="many2one_avatar_user"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
     <record model="ir.ui.view" id="sign_oca_template_tree_view">
         <field name="name">sign.oca.template.tree (in sign_oca)</field>
         <field name="model">sign.oca.template</field>
@@ -108,7 +161,7 @@
     <record model="ir.actions.act_window" id="sign_oca_template_act_window">
         <field name="name">Templates</field> <!-- TODO -->
         <field name="res_model">sign.oca.template</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">kanban,tree,form</field>
         <field name="domain">[]</field>
         <field name="context">{}</field>
     </record>

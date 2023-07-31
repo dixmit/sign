@@ -62,6 +62,7 @@ class SignOcaTemplateGenerate(models.TransientModel):
             signatory_data[item_id] = item_data
             item_id += 1
         return {
+            "name": self.template_id.name,
             "template_id": self.template_id.id,
             "signatory_data": signatory_data,
             "data": self.template_id.data,

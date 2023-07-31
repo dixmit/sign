@@ -28,7 +28,14 @@
 }
 .o_sign_oca_context_menu {
     position: absolute;
-    background-color: red;
+    background-color: rgba(0, 128, 128, 0.3);
     top: 0;
     left: 0;
+    .o_sign_oca_button_header {
+        padding: 0.3em;
+    }
+    .o_sign_oca_context_menu_item {
+        padding: 0.3em;
+        background-color: rgba(0, 128, 128, 0.4);
+    }
 }

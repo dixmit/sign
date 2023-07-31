@@ -15,3 +15,17 @@ html
     > .o_content:has(.o_sign_oca_content) {
     overflow: unset;
 }
+
+.o_sign_oca_field_edition {
+    label {
+        display: inline-block;
+        max-width: 100%;
+        margin-bottom: 5px;
+        font-weight: bold;
+        font-size: 1em;
+    }
+    .o_sign_oca_field_edition_value {
+        margin-bottom: 10px;
+        max-width: 100%;
+    }
+}

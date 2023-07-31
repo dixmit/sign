@@ -1,5 +1,19 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <templates xml:space="preserve">
+    <t t-name="sign_oca.SignOcaConfigureButtons">
+        <button class="btn btn-primary">Help</button>
+    </t>
+    <t t-name="sign_oca.SignOcaConfigureHelpDialog">
+        <div>
+            <div
+            >In order to add a new field, do a right click over the PDF page. You will be able to select the field that you will import</div>
+            <div
+            >Then, you can move and resize the fields over the PDF page using the move icons.</div>
+            <div
+            >If you do a click over a field, you will be able to change the default configurations of the field</div>
+            <div>Data is saved automatically when editing</div>
+        </div>
+    </t>
     <t t-name="sign_oca.sign_iframe_field_configure">
         <div
             class="o_sign_oca_field"
@@ -19,6 +33,9 @@
     </t>
     <t t-name="sign_oca.sign_iframe_contextmenu">
         <div class="o_sign_oca_context_menu" t-attf-style="top: #{top};left: #{left}">
+            <div
+                class="o_sign_oca_button_header"
+            >Click on the field that you want to add</div>
             <t t-foreach="info.fields" t-as="field">
                 <div
                     class="o_sign_oca_context_menu_item"
@@ -30,25 +47,39 @@
         </div>
     </t>
     <t t-name="sign_oca.sign_oca_field_edition">
-        <div>
-            <select name="field_id">
-                <t t-foreach="info.fields" t-as="field">
-                    <option
-                        t-att-value="field.id"
-                        t-esc="field.name"
-                        t-att-selected="item.field_id === field.id ? 'selected': None"
-                    />
-                </t>
-            </select>
-            <select name="role_id">
-                <t t-foreach="info.roles" t-as="role">
-                    <option
-                        t-att-value="role.id"
-                        t-esc="role.name"
-                        t-att-selected="item.role_id === role.id ? 'selected': None"
-                    />
-                </t>
-            </select>
+        <div class="o_sign_oca_field_edition">
+            <label for="field_id">Field</label>
+            <div class="o_sign_oca_field_edition_value">
+                <select name="field_id">
+                    <t t-foreach="info.fields" t-as="field">
+                        <option
+                            t-att-value="field.id"
+                            t-esc="field.name"
+                            t-att-selected="item.field_id === field.id ? 'selected': None"
+                        />
+                    </t>
+                </select>
+            </div>
+            <label for="role_id">Filled by</label>
+            <div class="o_sign_oca_field_edition_value">
+                <select name="role_id">
+                    <t t-foreach="info.roles" t-as="role">
+                        <option
+                            t-att-value="role.id"
+                            t-esc="role.name"
+                            t-att-selected="item.role_id === role.id ? 'selected': None"
+                        />
+                    </t>
+                </select>
+            </div>
+            <label for="required">Required</label>
+            <div class="o_sign_oca_field_edition_value">
+                <input
+                    name="required"
+                    type="checkbox"
+                    t-att-checked="item.required? 'checked': undefined"
+                />
+            </div>
         </div>
     </t>
 </templates>

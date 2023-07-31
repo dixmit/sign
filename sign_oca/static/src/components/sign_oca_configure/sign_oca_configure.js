@@ -7,8 +7,11 @@ odoo.define(
         const AbstractAction = require("web.AbstractAction");
         const Dialog = require("web.Dialog");
         const core = require("web.core");
+        var ControlPanel = require("web.ControlPanel");
         const SignOcaPdfCommon = require("sign_oca/static/src/components/sign_oca_pdf_common/sign_oca_pdf_common.js");
         const _t = core._t;
+        class SignOcaConfigureControlPanel extends ControlPanel {}
+        SignOcaConfigureControlPanel.template = "sign_oca.SignOcaConfigureControlPanel";
         class SignOcaConfigure extends SignOcaPdfCommon {
             constructor() {
                 super(...arguments);
@@ -151,6 +154,9 @@ odoo.define(
                                                 .val(),
                                             10
                                         );
+                                        var required = dialog.$el
+                                            .find("input[name='required']")
+                                            .prop("checked");
                                         this.env.services
                                             .rpc({
                                                 model: this.props.model,
@@ -161,6 +167,7 @@ odoo.define(
                                                     {
                                                         field_id,
                                                         role_id,
+                                                        required,
                                                     },
                                                 ],
                                             })
@@ -171,6 +178,7 @@ odoo.define(
                                                     (field) => field.id === field_id
                                                 )[0].name;
                                                 item.role_id = role_id;
+                                                item.required = required;
                                                 target.remove();
                                                 this.postIframeField(item);
                                             });
@@ -376,6 +384,33 @@ odoo.define(
                 this.res_id =
                     (action.params.res_id !== undefined && action.params.res_id) ||
                     action.context.params.id;
+                if (this.hasControlPanel) {
+                    this.controlPanelProps = {
+                        ...this.controlPanelProps,
+                        cp_content: {
+                            $buttons: this.renderButtons(),
+                        },
+                    };
+                }
+            },
+            renderButtons() {
+                var $buttons = $(core.qweb.render("sign_oca.SignOcaConfigureButtons"));
+                $buttons.on("click", () => {
+                    new Dialog(this, {
+                        title: _t("Help me"),
+                        $content: $(
+                            core.qweb.render("sign_oca.SignOcaConfigureHelpDialog")
+                        ),
+
+                        buttons: [
+                            {
+                                text: _t("Close"),
+                                close: true,
+                            },
+                        ],
+                    }).open();
+                });
+                return $buttons;
             },
             async start() {
                 await this._super(...arguments);

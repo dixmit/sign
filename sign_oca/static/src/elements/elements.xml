@@ -6,20 +6,20 @@
             style="width:100%;height:100%"
             type="text"
             t-att-tabindex="-1"
-            t-att-value="item.value_text? item.value_text: undefined"
-            t-if="item.to_sign"
+            t-att-value="item.value? item.value: undefined"
+            t-if="item.role == role"
         />
         <div
             style="width:100%;height:100%"
-            t-esc="item.value_text? item.value_text: undefined"
+            t-esc="item.value? item.value: undefined"
             t-else=""
         />
     </t>
     <t t-name="sign_oca.sign_iframe_field_signature">
         <img
             style="width:100%;height:100%"
-            t-att-src="item.value_binary"
-            t-if="item.value_binary"
+            t-attf-src="data:image/png;base64,{{item.value}}"
+            t-if="item.value"
         />
         <div style="width:100%;height:100%" t-else="" />
     </t>

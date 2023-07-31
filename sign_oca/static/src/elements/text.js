@@ -4,21 +4,15 @@ odoo.define("sign_oca.textElement", function (require) {
     const SignRegistry = require("sign_oca.SignRegistry");
     const textSignOca = {
         change: function (value, parent, item) {
-            /* Parent.env.services.rpc({
-                model: parent.props.model,
-                method: "write",
-                args: [
-                    [parent.props.res_id],
-                    {item_ids: [[1, item.id, {value_text: value}]]},
-                ],
-            });*/
-            parent.env.writeItem(item.id, {value_text: value});
-            item.value_text = value;
+            item.value = value;
             parent.checkFilledAll();
         },
         generate: function (parent, item, signatureItem) {
             var input = $(
-                core.qweb.render("sign_oca.sign_iframe_field_text", {item: item})
+                core.qweb.render("sign_oca.sign_iframe_field_text", {
+                    item: item,
+                    role: parent.info.role,
+                })
             )[0];
             signatureItem[0].addEventListener("focus_signature", () => {
                 input.focus();
@@ -26,7 +20,7 @@ odoo.define("sign_oca.textElement", function (require) {
             input.addEventListener("focus", (ev) => {
                 if (
                     item.default_value &&
-                    !item.value_text &&
+                    !item.value &&
                     parent.info.partner[item.default_value]
                 ) {
                     this.change(
@@ -48,7 +42,7 @@ odoo.define("sign_oca.textElement", function (require) {
                 ev.preventDefault();
                 var next_items = _.filter(
                     parent.info.items,
-                    (i) => i.tabindex > item.tabindex
+                    (i) => i.tabindex > item.tabindex && i.role === parent.role
                 ).sort((a, b) => a.tabindex - b.tabindex);
                 if (next_items.length > 0) {
                     ev.currentTarget.blur();
@@ -60,7 +54,7 @@ odoo.define("sign_oca.textElement", function (require) {
             return input;
         },
         check: function (item) {
-            return Boolean(item.value_text);
+            return Boolean(item.value);
         },
     };
     SignRegistry.add("text", textSignOca);

@@ -27,20 +27,6 @@ odoo.define("sign_oca.document_portal_base", function (require) {
                 this.props.access_token
             );
         }
-
-        writeItem(item_id, vals) {
-            this.env.services.rpc({
-                route:
-                    "/sign_oca/write/" +
-                    this.props.signer_id +
-                    "/" +
-                    this.props.access_token,
-                params: {
-                    item_id: item_id,
-                    vals: vals,
-                },
-            });
-        }
         checkToSign() {
             this.to_sign = this.to_sign_update;
             if (this.to_sign_update) {
@@ -60,6 +46,7 @@ odoo.define("sign_oca.document_portal_base", function (require) {
                     this.props.signer_id +
                     "/" +
                     this.props.access_token,
+                params: {items: this.info.items},
             });
         }
     }

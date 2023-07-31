@@ -83,26 +83,7 @@ class PortalSign(CustomerPortal):
             )
         except (AccessError, MissingError):
             return request.redirect("/my")
-        return signer_sudo.request_id.get_info(signer_sudo.partner_id)
-
-    @http.route(
-        ["/sign_oca/write/<int:signer_id>/<string:access_token>"],
-        type="json",
-        auth="public",
-        website=True,
-    )
-    def get_sign_oca_write_access(
-        self, signer_id, access_token, item_id=False, vals=False
-    ):
-        try:
-            signer_sudo = self._document_check_access(
-                "sign.oca.request.signer", signer_id, access_token
-            )
-        except (AccessError, MissingError):
-            return request.redirect("/my")
-        if item_id and vals:
-            signer_sudo.request_id.write({"item_ids": [(1, item_id, vals)]})
-        return True
+        return signer_sudo.get_info()
 
     @http.route(
         ["/sign_oca/sign/<int:signer_id>/<string:access_token>"],
@@ -110,12 +91,12 @@ class PortalSign(CustomerPortal):
         auth="public",
         website=True,
     )
-    def get_sign_oca_sign_access(self, signer_id, access_token):
+    def get_sign_oca_sign_access(self, signer_id, access_token, items):
         try:
             signer_sudo = self._document_check_access(
                 "sign.oca.request.signer", signer_id, access_token
             )
         except (AccessError, MissingError):
             return request.redirect("/my")
-        signer_sudo.request_id.action_sign(signer_sudo.partner_id.id)
+        signer_sudo.action_sign(items)
         return True

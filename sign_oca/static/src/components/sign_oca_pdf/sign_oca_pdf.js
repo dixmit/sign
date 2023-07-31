@@ -6,36 +6,22 @@ odoo.define("sign_oca/static/src/components/sign_oca_pdf/sign_oca_pdf.js", funct
     const core = require("web.core");
     const SignOcaPdfCommon = require("sign_oca/static/src/components/sign_oca_pdf_common/sign_oca_pdf_common.js");
     const SignRegistry = require("sign_oca.SignRegistry");
-    const {useSubEnv} = owl.hooks;
     class SignOcaPdf extends SignOcaPdfCommon {
         constructor() {
             super(...arguments);
             this.to_sign = false;
-            useSubEnv({
-                writeItem: this.writeItem.bind(this),
-            });
-        }
-        writeItem(item_id, vals) {
-            console.log(this);
-            this.env.services.rpc({
-                model: this.props.model,
-                method: "write",
-                args: [[this.props.res_id], {item_ids: [[1, item_id, vals]]}],
-            });
         }
         async willStart() {
             await super.willStart(...arguments);
             this.checkFilledAll();
         }
         checkToSign() {
-            if (this.to_sign !== this.to_sign_update) {
-                this.props.updateControlPanel({
-                    cp_content: {
-                        $buttons: this.renderButtons(this.to_sign_update),
-                    },
-                });
-                this.to_sign = this.to_sign_update;
-            }
+            this.props.updateControlPanel({
+                cp_content: {
+                    $buttons: this.renderButtons(this.to_sign_update),
+                },
+            });
+            this.to_sign = this.to_sign_update;
         }
         renderButtons(to_sign) {
             var $buttons = $(
@@ -48,7 +34,7 @@ odoo.define("sign_oca/static/src/components/sign_oca_pdf/sign_oca_pdf.js", funct
                     .rpc({
                         model: this.props.model,
                         method: "action_sign",
-                        args: [[this.props.res_id]],
+                        args: [[this.props.res_id], this.info.items],
                     })
                     .then(() => {
                         this.props.trigger("history_back");
@@ -101,7 +87,9 @@ odoo.define("sign_oca/static/src/components/sign_oca_pdf/sign_oca_pdf.js", funct
             this.to_sign_update =
                 _.filter(this.info.items, (item) => {
                     return (
-                        item.required && !SignRegistry.map[item.field_type].check(item)
+                        item.required &&
+                        item.role === this.info.role &&
+                        !SignRegistry.map[item.field_type].check(item)
                     );
                 }).length === 0;
             this.checkToSign();

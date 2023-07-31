@@ -13,8 +13,9 @@
                 <sheet>
                     <group>
                         <field name="template_id" />
-                        <field name="signed_data" />
+                        <field name="data" />
                     </group>
+                    <field name="signer_ids" />
                 </sheet>
                 <div class="oe_chatter" />
             </form>

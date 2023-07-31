@@ -56,31 +56,9 @@ odoo.define("sign_oca.signatureElement", function (require) {
             if (this.nameAndSignature.isSignatureEmpty()) {
                 /* TODO: Remove signature*/
             } else {
-                var signature = this.nameAndSignature.getSignatureImageSrc();
-                this.item.value_binary = signature;
+                var signature = this.nameAndSignature.getSignatureImage()[1];
+                this.item.value = signature;
                 this.getParent().postIframeField(this.item);
-                this.getParent().env.writeItem(this.item.id, {
-                    value_binary: this.nameAndSignature.getSignatureImage()[1],
-                });
-                /* This.getParent().env.services.rpc({
-                    model: this.getParent().props.model,
-                    method: "write",
-                    args: [
-                        [this.getParent().props.res_id],
-                        {
-                            item_ids: [
-                                [
-                                    1,
-                                    this.item.id,
-                                    {
-                                        value_binary: this.nameAndSignature.getSignatureImage()[1],
-                                    },
-                                ],
-                            ],
-                        },
-                    ],
-                });
-                */
             }
             this.getParent().checkFilledAll();
             var next_items = _.filter(
@@ -100,42 +78,44 @@ odoo.define("sign_oca.signatureElement", function (require) {
             var input = $(
                 core.qweb.render("sign_oca.sign_iframe_field_signature", {item: item})
             )[0];
-            signatureItem[0].addEventListener("focus_signature", () => {
-                var signatureOptions = {
-                    fontColor: "DarkBlue",
-                    defaultName: parent.info.partner.name,
-                };
-                new SignatureDialog(parent, {signatureOptions, item}).open();
-            });
-            input.addEventListener("click", (ev) => {
-                ev.preventDefault();
-                ev.stopPropagation();
-                var signatureOptions = {
-                    fontColor: "DarkBlue",
-                    defaultName: parent.info.partner.name,
-                };
-                new SignatureDialog(parent, {signatureOptions, item}).open();
-            });
-            input.addEventListener("keydown", (ev) => {
-                if ((ev.keyCode || ev.which) !== 9) {
-                    return true;
-                }
-                ev.preventDefault();
-                var next_items = _.filter(
-                    parent.info.items,
-                    (i) => i.tabindex > item.tabindex
-                );
-                if (next_items.length > 0) {
-                    ev.currentTarget.blur();
-                    parent.items[next_items[0].id].dispatchEvent(
-                        new Event("focus_signature")
+            if (item.role === parent.info.role) {
+                signatureItem[0].addEventListener("focus_signature", () => {
+                    var signatureOptions = {
+                        fontColor: "DarkBlue",
+                        defaultName: parent.info.partner.name,
+                    };
+                    new SignatureDialog(parent, {signatureOptions, item}).open();
+                });
+                input.addEventListener("click", (ev) => {
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                    var signatureOptions = {
+                        fontColor: "DarkBlue",
+                        defaultName: parent.info.partner.name,
+                    };
+                    new SignatureDialog(parent, {signatureOptions, item}).open();
+                });
+                input.addEventListener("keydown", (ev) => {
+                    if ((ev.keyCode || ev.which) !== 9) {
+                        return true;
+                    }
+                    ev.preventDefault();
+                    var next_items = _.filter(
+                        parent.info.items,
+                        (i) => i.tabindex > item.tabindex && i.role === parent.role
                     );
-                }
-            });
+                    if (next_items.length > 0) {
+                        ev.currentTarget.blur();
+                        parent.items[next_items[0].id].dispatchEvent(
+                            new Event("focus_signature")
+                        );
+                    }
+                });
+            }
             return input;
         },
         check: function (item) {
-            return Boolean(item.value_binary);
+            return Boolean(item.value);
         },
     };
     SignRegistry.add("signature", signatureSignOca);

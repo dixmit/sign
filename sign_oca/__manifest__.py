@@ -31,4 +31,5 @@
         "static/src/components/sign_oca_pdf_portal/sign_oca_pdf_portal.xml",
         "static/src/elements/elements.xml",
     ],
+    "maintainers": ["etobella"],
 }

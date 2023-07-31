@@ -6,4 +6,4 @@ Detected issues
 Tasks
 ~~~~~
 
-*  Make it work with unsigned partners?
+*  Make some kind of log in order to ensure the inalterability of the signature

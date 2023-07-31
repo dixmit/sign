@@ -11,6 +11,7 @@
     "website": "https://github.com/OCA/sign",
     "depends": ["web_editor", "portal", "base_sparse_field"],
     "data": [
+        "security/security.xml",
         "views/menu.xml",
         "data/data.xml",
         "wizards/sign_oca_template_generate.xml",

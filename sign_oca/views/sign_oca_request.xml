@@ -60,6 +60,10 @@
                         <label for="name" />
                         <h1><field name="name" /></h1>
                     </div>
+                    <group>
+                        <field name="data" />
+                    </group>
+
                     <field name="signer_ids" nolabel="1" />
                 </sheet>
                 <div class="oe_chatter">

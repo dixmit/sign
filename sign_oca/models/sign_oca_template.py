@@ -13,6 +13,13 @@ class SignOcaTemplate(models.Model):
     data = fields.Binary(attachment=True, required=True)
     filename = fields.Char()
     item_ids = fields.One2many("sign.oca.template.item", inverse_name="template_id")
+    request_count = fields.Integer(compute="_compute_request_count")
+    request_ids = fields.One2many("sign.oca.request", inverse_name="template_id")
+
+    @api.depends("request_ids")
+    def _compute_request_count(self):
+        for record in self:
+            record.request_count = len(record.request_ids)
 
     def configure(self):
         self.ensure_one()
@@ -69,7 +76,7 @@ class SignOcaTemplateItem(models.Model):
     role_id = fields.Many2one("sign.oca.role", default=lambda r: r._get_default_role())
     required = fields.Boolean()
     # If no role, it will be editable by everyone...
-    page = fields.Integer(required=True)
+    page = fields.Integer(required=True, default=1)
     position_x = fields.Float(required=True)
     position_y = fields.Float(required=True)
     width = fields.Float()

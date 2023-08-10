@@ -294,6 +294,14 @@
         <field name="context">{}</field>
     </record>
 
+    <record model="ir.actions.act_window" id="sign_oca_request_template_act_window">
+        <field name="name">Sign Requests</field>
+        <field name="res_model">sign.oca.request</field>
+        <field name="view_mode">kanban,tree,form</field>
+        <field name="domain">[('template_id', '=', active_id)]</field>
+        <field name="context">{}</field>
+    </record>
+
     <record model="ir.ui.menu" id="sign_oca_request_menu">
         <field name="name">Requests</field>
         <field name="parent_id" ref="sign_oca_root_menu" />

@@ -20,10 +20,21 @@
                             string="Configure"
                         />
                         <button
+                            name="%(sign_oca.sign_oca_request_template_act_window)s"
+                            type="action"
+                            icon="fa-file-text-o"
+                        >
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_value"><field
+                                        name="request_count"
+                                    /> Requests</span>
+                            </div>
+                        </button>
+                        <button
                             name="%(sign_oca_template_generate_act_window)s"
                             type="action"
                             string="Send to sign"
-                            icon="fa-paint-brush"
+                            icon="fa-paper-plane"
                         />
                     </div>
                     <group>

@@ -39,6 +39,9 @@ class SignOcaRequest(models.Model):
     to_sign = fields.Boolean(compute="_compute_to_sign")
     signatory_data = fields.Serialized(default=lambda r: {}, readonly=True)
     current_hash = fields.Char(readonly=True)
+    company_id = fields.Many2one(
+        "res.company", default=lambda r: r.env.company.id, required=True
+    )
 
     def cancel(self):
         self.write({"state": "cancel"})

@@ -44,6 +44,14 @@ class PortalSign(CustomerPortal):
             )
         except (AccessError, MissingError):
             return request.redirect("/my")
+        if signer_sudo.signed_on:
+            return request.render(
+                "sign_oca.portal_sign_document_signed",
+                {
+                    "signer": signer_sudo,
+                    "company": signer_sudo.request_id.company_id,
+                },
+            )
         return request.render(
             "sign_oca.portal_sign_document",
             {

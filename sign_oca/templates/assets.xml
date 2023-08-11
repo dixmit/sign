@@ -103,6 +103,44 @@
             </t>
         </t>
     </template>
+    <template id="portal_sign_document_signed">
+        <t t-call="web.layout">
+            <t t-set="head">
+                <t t-call-assets="web.assets_common" t-js="false" />
+                <t t-call-assets="web.assets_frontend" t-js="false" />
+            </t>
+
+            <div class="container">
+                <div class="o_logo">
+                    <img
+                        t-attf-src="/web/binary/company_logo?company={{ company.id }}"
+                        alt="Logo"
+                    />
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Document <t
+                                t-esc="signer.request_id.name"
+                            /> has already been signed</h2>
+                    </div>
+                    <div class="card-body">
+                        <t t-if="signer.request_id.state == 'signed'">
+                            You should have received an email with the final document.<br
+                            />
+                            Check on your mailbox.
+                        </t>
+                        <t t-elif="signer.request_id.state == 'cancel'">
+                            The document has been cancelled
+                        </t>
+                        <t t-else="">
+                            As soon as all signers have signed the document, you will receive an email with the full document
+                        </t>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
     <template t-name="sign_oca_template_mail">
         <div>
             <span>

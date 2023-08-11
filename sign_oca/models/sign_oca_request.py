@@ -94,12 +94,12 @@ class SignOcaRequestSigner(models.Model):
     _description = "Sign Request Value"
 
     data = fields.Binary(related="request_id.data")
-    request_id = fields.Many2one("sign.oca.request", required=True)
+    request_id = fields.Many2one("sign.oca.request", required=True, ondelete="cascade")
     partner_name = fields.Char(related="partner_id.name")
-    partner_id = fields.Many2one("res.partner", required=True)
-    role_id = fields.Many2one("sign.oca.role", required=True)
-    signed_on = fields.Datetime()
-    signature_hash = fields.Char()
+    partner_id = fields.Many2one("res.partner", required=True, ondelete="restrict")
+    role_id = fields.Many2one("sign.oca.role", required=True, ondelete="restrict")
+    signed_on = fields.Datetime(readonly=True)
+    signature_hash = fields.Char(readonly=True)
 
     def _compute_access_url(self):
         super()._compute_access_url()

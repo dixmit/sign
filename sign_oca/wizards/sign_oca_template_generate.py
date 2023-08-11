@@ -114,7 +114,10 @@ class SignOcaTemplateGenerateSigner(models.TransientModel):
             return self.env.user.partner_id
         return False
 
-    wizard_id = fields.Many2one("sign.oca.template.generate.signer")
+    wizard_id = fields.Many2one(
+        "sign.oca.template.generate.signer",
+        ondelete="cascade",
+    )
     role_id = fields.Many2one("sign.oca.role", required=True, readonly=True)
     partner_id = fields.Many2one(
         "res.partner", required=True, default=lambda r: r._get_default_partner()

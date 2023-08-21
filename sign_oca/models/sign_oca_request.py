@@ -169,6 +169,7 @@ class SignOcaRequestSigner(models.Model):
         # TODO: Add a log
         self.request_id.write(
             {
+                "signatory_data": signatory_data,
                 "data": b64encode(signed_pdf),
                 "current_hash": final_hash,
             }

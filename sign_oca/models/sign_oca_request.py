@@ -56,6 +56,9 @@ class SignOcaRequest(models.Model):
         for record in self:
             record.signed_count = len(record.signer_ids.filtered(lambda r: r.signed_on))
 
+    def open_template(self):
+        return self.template_id.configure()
+
     @api.depends("signer_ids.role_id", "signatory_data")
     @api.depends_context("uid")
     def _compute_to_sign(self):

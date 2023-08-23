@@ -22,26 +22,130 @@ class SignOcaRequest(models.Model):
 
     name = fields.Char(required=True)
     active = fields.Boolean(default=True)
-    template_id = fields.Many2one("sign.oca.template")
-    data = fields.Binary(required=True)
-    signed = fields.Boolean()
-    signed_data = fields.Binary(readonly=True)
+    template_id = fields.Many2one("sign.oca.template", readonly=True)
+    data = fields.Binary(
+        required=True, readonly=True, states={"draft": [("readonly", False)]}
+    )
+    signed = fields.Boolean(copy=False)
+    signed_data = fields.Binary(readonly=True, copy=False)
     signer_ids = fields.One2many(
-        "sign.oca.request.signer", inverse_name="request_id", auto_join=True
+        "sign.oca.request.signer",
+        inverse_name="request_id",
+        auto_join=True,
+        copy=True,
+        readonly=True,
+        states={"draft": [("readonly", False)]},
     )
     state = fields.Selection(
-        [("sent", "Sent"), ("signed", "Signed"), ("cancel", "Cancelled")],
-        default="sent",
+        [
+            ("draft", "Draft"),
+            ("sent", "Sent"),
+            ("signed", "Signed"),
+            ("cancel", "Cancelled"),
+        ],
+        default="draft",
+        readonly=True,
         required=True,
+        copy=False,
+        tracking=True,
     )
     signed_count = fields.Integer(compute="_compute_signed_count")
     signer_count = fields.Integer(compute="_compute_signer_count")
     to_sign = fields.Boolean(compute="_compute_to_sign")
-    signatory_data = fields.Serialized(default=lambda r: {}, readonly=True)
-    current_hash = fields.Char(readonly=True)
-    company_id = fields.Many2one(
-        "res.company", default=lambda r: r.env.company.id, required=True
+    signatory_data = fields.Serialized(
+        default=lambda r: {},
+        readonly=True,
+        copy=False,
     )
+    current_hash = fields.Char(readonly=True, copy=False)
+    company_id = fields.Many2one(
+        "res.company",
+        default=lambda r: r.env.company.id,
+        required=True,
+        readonly=True,
+        states={"draft": [("readonly", False)]},
+    )
+    next_item_id = fields.Integer(compute="_compute_next_item_id")
+
+    @api.depends("signatory_data")
+    def _compute_next_item_id(self):
+        for record in self:
+            record.next_item_id = (
+                record.signatory_data and max(record.signatory_data.keys()) or 0
+            ) + 1
+
+    def get_info(self):
+        self.ensure_one()
+        return {
+            "name": self.name,
+            "items": self.signatory_data,
+            "roles": [
+                {"id": signer.id, "name": signer.role_id.name}
+                for signer in self.signer_ids
+            ],
+            "fields": [
+                {"id": field.id, "name": field.name}
+                for field in self.env["sign.oca.field"].search([])
+            ],
+        }
+
+    def ensure_draft(self):
+        self.ensure_one()
+        if not self.signer_ids:
+            raise ValidationError(
+                _("There are no signers, please fill them before configuring it")
+            )
+        if not self.state == "draft":
+            raise ValidationError(_("You can only configure requests in draft state"))
+
+    def configure(self):
+        self.ensure_draft()
+        return {
+            "type": "ir.actions.client",
+            "tag": "sign_oca_configure",
+            "name": self.name,
+            "params": {
+                "res_model": self._name,
+                "res_id": self.id,
+            },
+        }
+
+    def delete_item(self, item_id):
+        self.ensure_draft()
+        data = self.signatory_data
+        data.pop(item_id)
+        self.signatory_data = data
+
+    def set_item_data(self, item_id, vals):
+        self.ensure_draft()
+        data = self.signatory_data
+        data[str(item_id)].update(vals)
+        self.signatory_data = data
+
+    def add_item(self, item_vals):
+        self.ensure_draft()
+        item_id = self.next_item_id
+        field_id = self.env["sign.oca.field"].browse(item_vals["field_id"])
+        signatory_data = self.signatory_data
+        signatory_data[item_id] = {
+            "id": item_id,
+            "field_id": field_id.id,
+            "field_type": field_id.field_type,
+            "required": False,
+            "name": field_id.name,
+            "role": self.signer_ids[0].role_id.id,
+            "page": 1,
+            "position_x": 0,
+            "position_y": 0,
+            "width": 0,
+            "height": 0,
+            "value": False,
+            "default_value": field_id.default_value,
+            "placeholder": "",
+        }
+        signatory_data[item_id].update(item_vals)
+        self.signatory_data = signatory_data
+        return signatory_data[item_id]
 
     def cancel(self):
         self.write({"state": "cancel"})
@@ -58,6 +162,30 @@ class SignOcaRequest(models.Model):
 
     def open_template(self):
         return self.template_id.configure()
+
+    def action_send(self, sign_now=False, message=""):
+        self.ensure_one()
+        if self.state != "draft":
+            return
+        self.state = "sent"
+        for signer in self.signer_ids:
+            signer._portal_ensure_token()
+            if sign_now and signer.partner_id == self.env.user.partner_id:
+                continue
+            view = self.env.ref("sign_oca.sign_oca_template_mail")
+            render_result = view._render(
+                {"record": signer, "body": message, "link": signer.access_url},
+                engine="ir.qweb",
+                minimal_qcontext=True,
+            )
+            self.env["mail.thread"].message_notify(
+                body=render_result,
+                partner_ids=signer.partner_id.ids,
+                subject=_("New document to sign"),
+                subtype_id=self.env.ref("mail.mt_comment").id,
+                mail_auto_delete=False,
+                email_layout_xmlid="mail.mail_notification_light",
+            )
 
     @api.depends("signer_ids.role_id", "signatory_data")
     @api.depends_context("uid")

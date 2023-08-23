@@ -1,7 +1,7 @@
 # Copyright 2023 CreuBlana
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
-from odoo import _, fields, models
+from odoo import fields, models
 
 
 class SignOcaTemplateGenerate(models.TransientModel):
@@ -85,24 +85,7 @@ class SignOcaTemplateGenerate(models.TransientModel):
 
     def generate(self):
         request = self._generate()
-        for signer in request.signer_ids:
-            signer._portal_ensure_token()
-            if self.sign_now and signer.partner_id == self.env.user.partner_id:
-                continue
-            view = self.env.ref("sign_oca.sign_oca_template_mail")
-            render_result = view._render(
-                {"record": signer, "body": self.message, "link": signer.access_url},
-                engine="ir.qweb",
-                minimal_qcontext=True,
-            )
-            self.env["mail.thread"].message_notify(
-                body=render_result,
-                partner_ids=signer.partner_id.ids,
-                subject=_("New document to sign"),
-                subtype_id=self.env.ref("mail.mt_comment").id,
-                mail_auto_delete=False,
-                email_layout_xmlid="mail.mail_notification_light",
-            )
+        request.action_send(sign_now=self.sign_now, message=self.message)
         return request.sign()
 
 

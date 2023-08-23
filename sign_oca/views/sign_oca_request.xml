@@ -10,9 +10,16 @@
             <form create="0">
                 <header>
                     <button
+                        string="Send"
+                        type="object"
+                        states="draft"
+                        name="action_send"
+                        icon="fa-paper-plane"
+                    />
+                    <button
                         string="Cancel"
                         type="object"
-                        states="sent,signed"
+                        states="draft,sent,signed"
                         name="cancel"
                         confirm="You will cancel the request and all the accesses. Are you sure about it?"
                     />
@@ -37,6 +44,14 @@
                                     > Signed</span></span>
                             </div>
                         </button>
+                        <button
+                            class="oe_stat_button"
+                            icon="fa-wrench"
+                            states="draft"
+                            name="configure"
+                            type="object"
+                            string="Configure"
+                        />
                     </div>
                     <field name="active" invisible="1" />
                     <widget
@@ -264,7 +279,7 @@
         <field name="name">sign.oca.request.signer.tree (in sign_oca)</field>
         <field name="model">sign.oca.request.signer</field>
         <field name="arch" type="xml">
-            <tree>
+            <tree editable="bottom">
                 <field name="role_id" />
                 <field name="partner_id" />
                 <field name="signed_on" />
@@ -278,7 +293,6 @@
             <form>
                 <sheet>
                     <group>
-                        <field name="request_id" />
                         <field name="role_id" />
                         <field name="partner_id" />
                         <field name="signed_on" />

@@ -80,6 +80,14 @@
                     t-att-checked="item.required? 'checked': undefined"
                 />
             </div>
+            <label for="placeholder">Placeholder</label>
+            <div class="o_sign_oca_field_edition_value">
+                <input
+                    type="text"
+                    name="placeholder"
+                    t-att-value="item.placeholder || ''"
+                />
+            </div>
         </div>
     </t>
 </templates>

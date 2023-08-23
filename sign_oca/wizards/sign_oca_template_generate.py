@@ -41,6 +41,7 @@ class SignOcaTemplateGenerate(models.TransientModel):
             "height": item.height,
             "value": False,
             "default_value": item.field_id.default_value,
+            "placeholder": item.placeholder,
         }
 
     def _generate_vals(self):

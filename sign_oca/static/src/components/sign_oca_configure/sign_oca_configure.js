@@ -157,6 +157,9 @@ odoo.define(
                                         var required = dialog.$el
                                             .find("input[name='required']")
                                             .prop("checked");
+                                        var placeholder = dialog.$el
+                                            .find("input[name='placeholder']")
+                                            .val();
                                         this.env.services
                                             .rpc({
                                                 model: this.props.model,
@@ -168,6 +171,7 @@ odoo.define(
                                                         field_id,
                                                         role_id,
                                                         required,
+                                                        placeholder,
                                                     },
                                                 ],
                                             })
@@ -179,6 +183,7 @@ odoo.define(
                                                 )[0].name;
                                                 item.role_id = role_id;
                                                 item.required = required;
+                                                item.placeholder = placeholder;
                                                 target.remove();
                                                 this.postIframeField(item);
                                             });

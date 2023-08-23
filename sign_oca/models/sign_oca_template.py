@@ -81,6 +81,7 @@ class SignOcaTemplateItem(models.Model):
     position_y = fields.Float(required=True)
     width = fields.Float()
     height = fields.Float()
+    placeholder = fields.Char()
 
     @api.model
     def _get_default_role(self):
@@ -98,4 +99,5 @@ class SignOcaTemplateItem(models.Model):
             "position_y": self.position_y,
             "width": self.width,
             "height": self.height,
+            "placeholder": self.placeholder,
         }

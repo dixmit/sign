@@ -1,13 +1,20 @@
 .o_sign_oca_field {
     background-color: rgba(0, 128, 128, 0.3);
+    &.sign_oca_field_required {
+        background-color: rgba(255, 113, 113, 0.5);
+    }
     &.sign_oca_selected {
-        background-color: rgba(0, 128, 128, 0.5);
+        background-color: rgba(0, 128, 128, 0.5) !important;
     }
     .o_placeholder {
         -webkit-user-select: none;
         -moz-user-select: none;
         -ms-user-select: none;
         user-select: none;
+    }
+    input {
+        border: transparent;
+        background-color: transparent;
     }
 }
 .o_sign_oca_field_config {

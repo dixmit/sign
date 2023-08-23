@@ -7,6 +7,7 @@
             type="text"
             t-att-tabindex="-1"
             t-att-value="item.value? item.value: undefined"
+            t-att-placeholder="item.placeholder || item.name"
             t-if="item.role == role"
         />
         <div
@@ -21,7 +22,7 @@
             t-attf-src="data:image/png;base64,{{item.value}}"
             t-if="item.value"
         />
-        <div style="width:100%;height:100%" t-else="" />
+        <div style="width:100%;height:100%" t-else="" t-esc="placeholder" />
     </t>
     <t t-name="sign_oca.sign_oca_sign_dialog">
         <div>

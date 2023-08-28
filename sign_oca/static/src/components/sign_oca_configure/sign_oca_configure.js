@@ -117,7 +117,7 @@ odoo.define(
                     "o_sign_oca_resize"
                 );
                 signatureItem[0].addEventListener(
-                    "mouseup",
+                    "click",
                     (e) => {
                         if (
                             e.target.classList.contains("o_sign_oca_resize") ||

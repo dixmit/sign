@@ -37,7 +37,7 @@ class PortalSign(CustomerPortal):
         auth="public",
         website=True,
     )
-    def get_sign_oca_access(self, signer_id, access_token):
+    def get_sign_oca_access(self, signer_id, access_token, **kwargs):
         try:
             signer_sudo = self._document_check_access(
                 "sign.oca.request.signer", signer_id, access_token

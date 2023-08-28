@@ -215,27 +215,39 @@ odoo.define(
                     },
                     true
                 );
-                dragItem.addEventListener("mousedown", (mousedownEvent) => {
+                var startFunction = "mousedown";
+                var endFunction = "mouseup";
+                var moveFunction = "mousemove";
+                if (this.env.device.isMobile || this.env.device.isMobileDevice) {
+                    startFunction = "touchstart";
+                    endFunction = "touchend";
+                    moveFunction = "touchmove";
+                }
+                dragItem.addEventListener(startFunction, (mousedownEvent) => {
                     mousedownEvent.preventDefault();
                     var parentPage = mousedownEvent.target.parentElement.parentElement;
                     this.movingItem = mousedownEvent.target.parentElement;
                     var mousemove = this._onDragItem.bind(this);
-                    parentPage.addEventListener("mousemove", mousemove);
+                    parentPage.addEventListener(moveFunction, mousemove);
                     parentPage.addEventListener(
-                        "mouseup",
+                        endFunction,
                         (mouseupEvent) => {
                             mouseupEvent.currentTarget.removeEventListener(
-                                "mousemove",
+                                moveFunction,
                                 mousemove
                             );
                             var target = $(this.movingItem);
                             var position = target.parent()[0].getBoundingClientRect();
+                            var newPosition = mouseupEvent;
+                            if (mouseupEvent.changedTouches) {
+                                newPosition = mouseupEvent.changedTouches[0];
+                            }
                             var left =
                                 (Math.max(
                                     0,
                                     Math.min(
                                         position.width,
-                                        mouseupEvent.pageX - position.x
+                                        newPosition.pageX - position.x
                                     )
                                 ) *
                                     100) /
@@ -245,7 +257,7 @@ odoo.define(
                                     0,
                                     Math.min(
                                         position.height,
-                                        mouseupEvent.pageY - position.y
+                                        newPosition.pageY - position.y
                                     )
                                 ) *
                                     100) /
@@ -272,23 +284,27 @@ odoo.define(
                     );
                 });
                 _.each(resizeItems, (resizeItem) => {
-                    resizeItem.addEventListener("mousedown", (mousedownEvent) => {
+                    resizeItem.addEventListener(startFunction, (mousedownEvent) => {
                         mousedownEvent.preventDefault();
                         var parentPage =
                             mousedownEvent.target.parentElement.parentElement;
                         this.resizingItem = mousedownEvent.target.parentElement;
                         var mousemove = this._onResizeItem.bind(this);
-                        parentPage.addEventListener("mousemove", mousemove);
+                        parentPage.addEventListener(moveFunction, mousemove);
                         parentPage.addEventListener(
-                            "mouseup",
+                            endFunction,
                             (mouseupEvent) => {
                                 mouseupEvent.stopPropagation();
                                 mouseupEvent.preventDefault();
                                 mouseupEvent.currentTarget.removeEventListener(
-                                    "mousemove",
+                                    moveFunction,
                                     mousemove
                                 );
                                 var target = $(this.resizingItem);
+                                var newPosition = mouseupEvent;
+                                if (mouseupEvent.changedTouches) {
+                                    newPosition = mouseupEvent.changedTouches[0];
+                                }
                                 var targetPosition = target
                                     .find(".o_sign_oca_resize")[0]
                                     .getBoundingClientRect();
@@ -299,7 +315,7 @@ odoo.define(
                                 var width =
                                     (Math.max(
                                         0,
-                                        mouseupEvent.pageX +
+                                        newPosition.pageX +
                                             targetPosition.width -
                                             itemPosition.x
                                     ) *
@@ -308,7 +324,7 @@ odoo.define(
                                 var height =
                                     (Math.max(
                                         0,
-                                        mouseupEvent.pageY +
+                                        newPosition.pageY +
                                             targetPosition.height -
                                             itemPosition.y
                                     ) *
@@ -348,13 +364,23 @@ odoo.define(
                     .find(".o_sign_oca_resize")[0]
                     .getBoundingClientRect();
                 var itemPosition = target[0].getBoundingClientRect();
+                var newPosition = e;
+                if (e.targetTouches) {
+                    newPosition = e.targetTouches[0];
+                }
                 var pagePosition = target.parent()[0].getBoundingClientRect();
                 var width =
-                    (Math.max(0, e.pageX + targetPosition.width - itemPosition.x) *
+                    (Math.max(
+                        0,
+                        newPosition.pageX + targetPosition.width - itemPosition.x
+                    ) *
                         100) /
                     pagePosition.width;
                 var height =
-                    (Math.max(0, e.pageY + targetPosition.height - itemPosition.y) *
+                    (Math.max(
+                        0,
+                        newPosition.pageY + targetPosition.height - itemPosition.y
+                    ) *
                         100) /
                     pagePosition.height;
                 target.css("width", width + "%");
@@ -365,12 +391,22 @@ odoo.define(
                 e.preventDefault();
                 var target = $(this.movingItem);
                 var position = target.parent()[0].getBoundingClientRect();
+                var newPosition = e;
+                if (e.targetTouches) {
+                    newPosition = e.targetTouches[0];
+                }
                 var left =
-                    (Math.max(0, Math.min(position.width, e.pageX - position.x)) *
+                    (Math.max(
+                        0,
+                        Math.min(position.width, newPosition.pageX - position.x)
+                    ) *
                         100) /
                     position.width;
                 var top =
-                    (Math.max(0, Math.min(position.height, e.pageY - position.y)) *
+                    (Math.max(
+                        0,
+                        Math.min(position.height, newPosition.pageY - position.y)
+                    ) *
                         100) /
                     position.height;
                 target.css("left", left + "%");

@@ -23,6 +23,10 @@
         <field name="name">Signature</field>
         <field name="field_type">signature</field>
     </record>
+    <record id="sign_field_check" model="sign.oca.field">
+        <field name="name">Check</field>
+        <field name="field_type">check</field>
+    </record>
     <record id="sign_role_customer" model="sign.oca.role">
         <field name="name">Customer</field>
         <field name="domain">[]</field>

@@ -6,6 +6,8 @@ from base64 import b64decode, b64encode
 from io import BytesIO
 
 from PyPDF2 import PdfFileReader, PdfFileWriter
+from reportlab.graphics.shapes import Drawing, Line, Rect
+from reportlab.lib.colors import black, transparent
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.pdfgen import canvas
 from reportlab.platypus import Image, Paragraph
@@ -337,6 +339,36 @@ class SignOcaRequestSigner(models.Model):
 
     def getParagraphStyle(self):
         return ParagraphStyle(name="Oca Sign Style")
+
+    def _get_pdf_page_check(self, item, box):
+        packet = BytesIO()
+        can = canvas.Canvas(packet, pagesize=(box.getWidth(), box.getHeight()))
+        width = item["width"] / 100 * float(box.getWidth())
+        height = item["height"] / 100 * float(box.getHeight())
+        drawing = Drawing(width=width, height=height)
+        drawing.add(
+            Rect(
+                0,
+                0,
+                width,
+                height,
+                strokeWidth=3,
+                strokeColor=black,
+                fillColor=transparent,
+            )
+        )
+        if item["value"]:
+            drawing.add(Line(0, 0, width, height, strokeColor=black, strokeWidth=3))
+            drawing.add(Line(0, height, width, 0, strokeColor=black, strokeWidth=3))
+        drawing.drawOn(
+            can,
+            item["position_x"] / 100 * float(box.getWidth()),
+            (100 - item["position_y"] - item["height"]) / 100 * float(box.getHeight()),
+        )
+        can.save()
+        packet.seek(0)
+        new_pdf = PdfFileReader(packet)
+        return new_pdf.getPage(0)
 
     def _get_pdf_page_signature(self, item, box):
         packet = BytesIO()

@@ -29,7 +29,6 @@ class SignOcaRequest(models.Model):
         required=True, readonly=True, states={"draft": [("readonly", False)]}
     )
     signed = fields.Boolean(copy=False)
-    signed_data = fields.Binary(readonly=True, copy=False)
     signer_ids = fields.One2many(
         "sign.oca.request.signer",
         inverse_name="request_id",

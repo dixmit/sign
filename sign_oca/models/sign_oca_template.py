@@ -71,9 +71,13 @@ class SignOcaTemplateItem(models.Model):
     _name = "sign.oca.template.item"
     _description = "Sign Oca Template Item"  # TODO
 
-    template_id = fields.Many2one("sign.oca.template", required=True)
-    field_id = fields.Many2one("sign.oca.field")
-    role_id = fields.Many2one("sign.oca.role", default=lambda r: r._get_default_role())
+    template_id = fields.Many2one(
+        "sign.oca.template", required=True, ondelete="cascade"
+    )
+    field_id = fields.Many2one("sign.oca.field", ondelete="restrict")
+    role_id = fields.Many2one(
+        "sign.oca.role", default=lambda r: r._get_default_role(), ondelete="restrict"
+    )
     required = fields.Boolean()
     # If no role, it will be editable by everyone...
     page = fields.Integer(required=True, default=1)

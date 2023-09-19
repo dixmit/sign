@@ -76,6 +76,21 @@ class SignOcaRequest(models.Model):
                 record.signatory_data and max(record.signatory_data.keys()) or 0
             ) + 1
 
+    def get_info(self):
+        self.ensure_one()
+        return {
+            "name": self.name,
+            "items": self.signatory_data,
+            "roles": [
+                {"id": signer.id, "name": signer.role_id.name}
+                for signer in self.signer_ids
+            ],
+            "fields": [
+                {"id": field.id, "name": field.name}
+                for field in self.env["sign.oca.field"].search([])
+            ],
+        }
+
     def _ensure_draft(self):
         self.ensure_one()
         if not self.signer_ids:
@@ -110,7 +125,7 @@ class SignOcaRequest(models.Model):
         data = self.signatory_data
         data[str(item_id)].update(vals)
         self.signatory_data = data
-        self._set_action_log("update_field")
+        self._set_action_log("edit_field")
 
     def add_item(self, item_vals):
         self._ensure_draft()
@@ -159,6 +174,7 @@ class SignOcaRequest(models.Model):
         self.ensure_one()
         if self.state != "draft":
             return
+        self._set_action_log("validate")
         self.state = "sent"
         for signer in self.signer_ids:
             signer._portal_ensure_token()
@@ -441,6 +457,7 @@ class SignRequestLog(models.Model):
     action = fields.Selection(
         [
             ("create", "Create"),
+            ("validate", "Validate"),
             ("view", "View Document"),
             ("sign", "Sign"),
             ("add_field", "Add field"),

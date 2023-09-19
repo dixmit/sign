@@ -77,6 +77,10 @@
                     </div>
                     <group>
                         <field name="data" />
+                        <field
+                            name="template_id"
+                            attrs="{'invisible': [('template_id', '=', False)]}"
+                        />
                     </group>
 
                     <field name="signer_ids" nolabel="1" />
@@ -97,6 +101,10 @@
             <search>
                 <field name="name" />
                 <field name="template_id" />
+                <field
+                    name="signer_ids"
+                    filter_domain="[('signer_ids.partner_id', 'child_of', raw_value)]"
+                />
                 <separator />
                 <filter
                     name="created_by_me"

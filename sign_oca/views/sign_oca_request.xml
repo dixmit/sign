@@ -52,6 +52,14 @@
                             type="object"
                             string="Configure"
                         />
+                        <button
+                            class="oe_stat_button"
+                            icon="fa-pencil"
+                            name="%(sign_oca_request_log_act_window)s"
+                            type="action"
+                            string="Activity Log"
+                        />
+
                     </div>
                     <field name="active" invisible="1" />
                     <widget

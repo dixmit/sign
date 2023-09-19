@@ -91,7 +91,7 @@ class PortalSign(CustomerPortal):
             )
         except (AccessError, MissingError):
             return request.redirect("/my")
-        return signer_sudo.get_info()
+        return signer_sudo.get_info(access_token=access_token)
 
     @http.route(
         ["/sign_oca/sign/<int:signer_id>/<string:access_token>"],
@@ -106,5 +106,5 @@ class PortalSign(CustomerPortal):
             )
         except (AccessError, MissingError):
             return request.redirect("/my")
-        signer_sudo.action_sign(items)
+        signer_sudo.action_sign(items, access_token=access_token)
         return True

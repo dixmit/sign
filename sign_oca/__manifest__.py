@@ -15,6 +15,7 @@
         "views/menu.xml",
         "data/data.xml",
         "wizards/sign_oca_template_generate.xml",
+        "views/sign_oca_request_log.xml",
         "views/sign_oca_request.xml",
         "security/ir.model.access.csv",
         "views/sign_oca_field.xml",

@@ -14,6 +14,7 @@ from reportlab.platypus import Image, Paragraph
 
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
+from odoo.http import request
 
 
 class SignOcaRequest(models.Model):
@@ -75,22 +76,7 @@ class SignOcaRequest(models.Model):
                 record.signatory_data and max(record.signatory_data.keys()) or 0
             ) + 1
 
-    def get_info(self):
-        self.ensure_one()
-        return {
-            "name": self.name,
-            "items": self.signatory_data,
-            "roles": [
-                {"id": signer.id, "name": signer.role_id.name}
-                for signer in self.signer_ids
-            ],
-            "fields": [
-                {"id": field.id, "name": field.name}
-                for field in self.env["sign.oca.field"].search([])
-            ],
-        }
-
-    def ensure_draft(self):
+    def _ensure_draft(self):
         self.ensure_one()
         if not self.signer_ids:
             raise ValidationError(
@@ -100,7 +86,8 @@ class SignOcaRequest(models.Model):
             raise ValidationError(_("You can only configure requests in draft state"))
 
     def configure(self):
-        self.ensure_draft()
+        self._ensure_draft()
+        self._set_action_log("configure")
         return {
             "type": "ir.actions.client",
             "tag": "sign_oca_configure",
@@ -112,19 +99,21 @@ class SignOcaRequest(models.Model):
         }
 
     def delete_item(self, item_id):
-        self.ensure_draft()
+        self._ensure_draft()
         data = self.signatory_data
         data.pop(item_id)
         self.signatory_data = data
+        self._set_action_log("delete_field")
 
     def set_item_data(self, item_id, vals):
-        self.ensure_draft()
+        self._ensure_draft()
         data = self.signatory_data
         data[str(item_id)].update(vals)
         self.signatory_data = data
+        self._set_action_log("update_field")
 
     def add_item(self, item_vals):
-        self.ensure_draft()
+        self._ensure_draft()
         item_id = self.next_item_id
         field_id = self.env["sign.oca.field"].browse(item_vals["field_id"])
         signatory_data = self.signatory_data
@@ -146,10 +135,12 @@ class SignOcaRequest(models.Model):
         }
         signatory_data[item_id].update(item_vals)
         self.signatory_data = signatory_data
+        self._set_action_log("add_field")
         return signatory_data[item_id]
 
     def cancel(self):
         self.write({"state": "cancel"})
+        self._set_action_log("cancel")
 
     @api.depends("signer_ids")
     def _compute_signer_count(self):
@@ -221,6 +212,34 @@ class SignOcaRequest(models.Model):
             },
         }
 
+    def _set_action_log_vals(self, action, **kwargs):
+        vals = kwargs.copy()
+        vals.update(
+            {"action": action, "request_id": self.id, "ip": self._get_action_log_ip()}
+        )
+        return vals
+
+    def _get_action_log_ip(self):
+        if not request or not hasattr(request, "httprequest"):
+            # This comes from a server call. Set as localhost
+            return "0.0.0.0"
+        return request.httprequest.access_route[-1]
+
+    def _set_action_log(self, action, **kwargs):
+        self.ensure_one()
+        return (
+            self.env["sign.oca.request.log"]
+            .sudo()
+            .create(self._set_action_log_vals(action, **kwargs))
+        )
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super().create(vals_list)
+        for record in records:
+            record._set_action_log("create")
+        return records
+
 
 class SignOcaRequestSigner(models.Model):
 
@@ -244,10 +263,9 @@ class SignOcaRequestSigner(models.Model):
                 record.access_token,
             )
 
-    def get_info(self):
+    def get_info(self, access_token=False):
         self.ensure_one()
-        # TODO: Add a log
-
+        self._set_action_log("view", access_token=access_token)
         return {
             "role": self.role_id.id if not self.signed_on else False,
             "name": self.request_id.template_id.name,
@@ -261,7 +279,7 @@ class SignOcaRequestSigner(models.Model):
             },
         }
 
-    def action_sign(self, items):
+    def action_sign(self, items, access_token=False):
         self.ensure_one()
         if self.signed_on:
             raise ValidationError(
@@ -298,7 +316,6 @@ class SignOcaRequestSigner(models.Model):
         signed_pdf = output_stream.read()
         final_hash = hashlib.sha1(signed_pdf).hexdigest()
         # TODO: Review that the hash has not been changed...
-        # TODO: Add a log
         self.request_id.write(
             {
                 "signatory_data": signatory_data,
@@ -308,6 +325,7 @@ class SignOcaRequestSigner(models.Model):
         )
         self.signature_hash = final_hash
         self.request_id._check_signed()
+        self._set_action_log("sign", access_token=access_token)
         # TODO: Add a return
 
     def _check_signable(self, item):
@@ -321,7 +339,7 @@ class SignOcaRequestSigner(models.Model):
         can = canvas.Canvas(packet, pagesize=(box.getWidth(), box.getHeight()))
         if not item["value"]:
             return False
-        par = Paragraph(item["value"], style=self.getParagraphStyle())
+        par = Paragraph(item["value"], style=self._getParagraphStyle())
         par.wrap(
             item["width"] / 100 * float(box.getWidth()),
             item["height"] / 100 * float(box.getHeight()),
@@ -336,7 +354,7 @@ class SignOcaRequestSigner(models.Model):
         new_pdf = PdfFileReader(packet)
         return new_pdf.getPage(0)
 
-    def getParagraphStyle(self):
+    def _getParagraphStyle(self):
         return ParagraphStyle(name="Oca Sign Style")
 
     def _get_pdf_page_check(self, item, box):
@@ -391,3 +409,47 @@ class SignOcaRequestSigner(models.Model):
 
     def _get_pdf_page(self, item, box):
         return getattr(self, "_get_pdf_page_%s" % item["field_type"])(item, box)
+
+    def _set_action_log(self, action, **kwargs):
+        self.ensure_one()
+        return self.request_id._set_action_log(action, signer_id=self.id, **kwargs)
+
+    def name_get(self):
+        result = [(signer.id, (signer.partner_id.display_name)) for signer in self]
+        return result
+
+
+class SignRequestLog(models.Model):
+    _name = "sign.oca.request.log"
+    _log_access = False
+
+    uid = fields.Many2one(
+        "res.users",
+        required=True,
+        readonly=True,
+        ondelete="cascade",
+        default=lambda r: r.env.user.id,
+    )
+    date = fields.Datetime(
+        required=True, readonly=True, default=lambda r: fields.Datetime.now()
+    )
+    partner_id = fields.Many2one(
+        "res.partner", required=True, default=lambda r: r.env.user.partner_id.id
+    )
+    request_id = fields.Many2one("sign.oca.request", required=True, ondelete="cascade")
+    signer_id = fields.Many2one("sign.oca.request.signer")
+    action = fields.Selection(
+        [
+            ("create", "Create"),
+            ("view", "View Document"),
+            ("sign", "Sign"),
+            ("add_field", "Add field"),
+            ("edit_field", "Edit field"),
+            ("delete_field", "Delete field"),
+            ("cancel", "Cancel"),
+        ],
+        required=True,
+        readonly=True,
+    )
+    access_token = fields.Char(readonly=True)
+    ip = fields.Char(readonly=True)

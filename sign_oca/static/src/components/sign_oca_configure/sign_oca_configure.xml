@@ -4,6 +4,14 @@
         <button class="btn btn-primary"><i
                 class="fa fa-question-circle"
             /> Help</button>
+        <!--
+        <div
+            >In order to add a new field, do a right click over the PDF page. You will be able to select the field that you will import</div>
+            <div
+            >Then, you can move and resize the fields over the PDF page using the move icons.</div>
+            <div
+            >If you do a click over a field, you will be able to change the default configurations of the field</div>
+            <div>Data is saved automatically when editing</div>-->
     </t>
     <t t-name="sign_oca.SignOcaConfigureHelpDialog">
         <div>
@@ -91,5 +99,21 @@
                 />
             </div>
         </div>
+    </t>
+    <t
+        t-name="sign_oca.SignOcaConfigure"
+        t-inherit="sign_oca.SignOcaPdfCommon"
+        t-inherit-mode="primary"
+        owl="1"
+    >
+        <xpath expr="//iframe" position="before">
+            <div class="alert alert-warning row" role="alert" style="margin: 0px">
+                In order to add a new field, do a right click over the PDF page. You will be able to select the field that you will import.
+                Then, you can move and resize the fields over the PDF page using the move icons.
+                If you do a click over a field, you will be able to change the default configurations of the field<br
+                />
+                Data is saved automatically when editing.
+            </div>
+        </xpath>
     </t>
 </templates>

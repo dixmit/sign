@@ -426,33 +426,6 @@ odoo.define(
                 this.res_id =
                     (action.params.res_id !== undefined && action.params.res_id) ||
                     action.context.params.id;
-                if (this.hasControlPanel) {
-                    this.controlPanelProps = {
-                        ...this.controlPanelProps,
-                        cp_content: {
-                            $buttons: this.renderButtons(),
-                        },
-                    };
-                }
-            },
-            renderButtons() {
-                var $buttons = $(core.qweb.render("sign_oca.SignOcaConfigureButtons"));
-                $buttons.on("click", () => {
-                    new Dialog(this, {
-                        title: _t("Help me"),
-                        $content: $(
-                            core.qweb.render("sign_oca.SignOcaConfigureHelpDialog")
-                        ),
-
-                        buttons: [
-                            {
-                                text: _t("Close"),
-                                close: true,
-                            },
-                        ],
-                    }).open();
-                });
-                return $buttons;
             },
             async start() {
                 await this._super(...arguments);
@@ -472,7 +445,7 @@ odoo.define(
             },
         });
         core.action_registry.add("sign_oca_configure", SignOcaConfigureAction);
-
+        SignOcaConfigure.template = "sign_oca.SignOcaConfigure";
         return {
             SignOcaConfigure,
             SignOcaConfigureAction,

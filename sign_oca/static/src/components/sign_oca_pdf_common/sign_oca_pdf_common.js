@@ -61,7 +61,7 @@ odoo.define(
                     "page"
                 ).length;
                 var nbLayers = this.iframe.el.contentDocument.getElementsByClassName(
-                    "textLayer"
+                    "endOfContent"
                 ).length;
                 if (nbPages > 0 && nbLayers > 0) {
                     this.postIframeFields();

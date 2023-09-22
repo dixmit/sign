@@ -20,17 +20,21 @@ odoo.define(
             }
             postIframeFields() {
                 super.postIframeFields(...arguments);
+                console.log(
+                    this.iframe.el.contentDocument.getElementsByClassName("page")
+                );
+                console.log(
+                    this.iframe.el.contentDocument.getElementsByClassName("textLayer")
+                );
                 _.each(
-                    this.iframe.el.contentDocument.getElementsByClassName("textLayer"),
-                    (textLayer) => {
-                        var page = textLayer.parentElement;
-
-                        textLayer.addEventListener("mousedown", (e) => {
+                    this.iframe.el.contentDocument.getElementsByClassName("page"),
+                    (page) => {
+                        page.addEventListener("mousedown", (e) => {
                             e.preventDefault();
                             e.stopPropagation();
                             return false;
                         });
-                        textLayer.addEventListener("contextmenu", (e) => {
+                        page.addEventListener("contextmenu", (e) => {
                             e.preventDefault();
                             e.stopPropagation();
                             if (this.contextMenu !== undefined) {
@@ -352,9 +356,6 @@ odoo.define(
                     });
                 });
                 return signatureItem;
-                /* Var component = new SignOcaPdfField(this, {...item});
-                console.log(this.iframe.el.contentDocument.getElementsByClassName('page')[item.page - 1].__proto__)
-                component.mount(this.iframe.el.contentDocument.getElementsByClassName('page')[item.page - 1])*/
             }
             _onResizeItem(e) {
                 e.stopPropagation();

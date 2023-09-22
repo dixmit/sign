@@ -17,6 +17,8 @@ odoo.define(
                 super(...arguments);
                 this.field_template = "sign_oca.sign_iframe_field_configure";
                 this.contextMenu = undefined;
+                this.isMobile =
+                    this.env.device.isMobile || this.env.device.isMobileDevice;
             }
             postIframeFields() {
                 super.postIframeFields(...arguments);
@@ -222,7 +224,7 @@ odoo.define(
                 var startFunction = "mousedown";
                 var endFunction = "mouseup";
                 var moveFunction = "mousemove";
-                if (this.env.device.isMobile || this.env.device.isMobileDevice) {
+                if (this.isMobile) {
                     startFunction = "touchstart";
                     endFunction = "touchend";
                     moveFunction = "touchmove";

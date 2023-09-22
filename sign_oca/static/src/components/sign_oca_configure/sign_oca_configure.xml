@@ -107,7 +107,12 @@
         owl="1"
     >
         <xpath expr="//iframe" position="before">
-            <div class="alert alert-warning row" role="alert" style="margin: 0px">
+            <div
+                class="alert alert-warning row"
+                role="alert"
+                style="margin: 0px"
+                t-if="!isMobile"
+            >
                 In order to add a new field, do a right click over the PDF page. You will be able to select the field that you will import.
                 Then, you can move and resize the fields over the PDF page using the move icons.
                 If you do a click over a field, you will be able to change the default configurations of the field<br

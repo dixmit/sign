@@ -3,7 +3,7 @@ odoo.define(
     function (require) {
         "use strict";
         const {Component} = owl;
-        const {onMounted, onWillStart, useRef} = owl.hooks;
+        const {onMounted, onWillStart, onWillUnmount, useRef} = owl.hooks;
         const Dialog = require("web.Dialog");
         const core = require("web.core");
         const _t = core._t;
@@ -22,7 +22,9 @@ odoo.define(
                     iframeReject = reject;
                 });
                 this.items = {};
-
+                onWillUnmount(() => {
+                    clearTimeout(this.reviewFieldsTimeout);
+                });
                 this.iframeLoaded.resolve = iframeResolve;
                 this.iframeLoaded.reject = iframeReject;
                 onWillStart(this.willStart.bind(this));
@@ -65,12 +67,26 @@ odoo.define(
                 ).length;
                 if (nbPages > 0 && nbLayers > 0) {
                     this.postIframeFields();
+                    this.reviewFields();
                 } else {
                     var self = this;
                     setTimeout(function () {
                         self.waitIframeLoaded();
                     }, 50);
                 }
+            }
+            reviewFields() {
+                if (
+                    this.iframe.el.contentDocument.getElementsByClassName(
+                        "o_sign_oca_ready"
+                    ).length === 0
+                ) {
+                    this.postIframeFields();
+                }
+                this.reviewFieldsTimeout = setTimeout(
+                    this.reviewFields.bind(this),
+                    1000
+                );
             }
             postIframeFields() {
                 this.iframe.el.contentDocument
@@ -99,6 +115,14 @@ odoo.define(
                 _.each(this.info.items, (item) => {
                     this.postIframeField(item);
                 });
+                $(
+                    this.iframe.el.contentDocument.getElementsByClassName("page")[0]
+                ).append($("<div class='o_sign_oca_ready'/>"));
+
+                $(this.iframe.el.contentDocument.getElementById("viewer")).addClass(
+                    "sign_oca_ready"
+                );
+                console.log(this.iframe.el.contentDocument.getElementById("viewer"));
                 this.iframeLoaded.resolve();
             }
             postIframeField(item) {

@@ -122,7 +122,6 @@ odoo.define(
                 $(this.iframe.el.contentDocument.getElementById("viewer")).addClass(
                     "sign_oca_ready"
                 );
-                console.log(this.iframe.el.contentDocument.getElementById("viewer"));
                 this.iframeLoaded.resolve();
             }
             postIframeField(item) {

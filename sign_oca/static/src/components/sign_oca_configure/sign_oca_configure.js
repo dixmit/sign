@@ -22,12 +22,6 @@ odoo.define(
             }
             postIframeFields() {
                 super.postIframeFields(...arguments);
-                console.log(
-                    this.iframe.el.contentDocument.getElementsByClassName("page")
-                );
-                console.log(
-                    this.iframe.el.contentDocument.getElementsByClassName("textLayer")
-                );
                 _.each(
                     this.iframe.el.contentDocument.getElementsByClassName("page"),
                     (page) => {
@@ -435,6 +429,7 @@ odoo.define(
                     model: this.model,
                     res_id: this.res_id,
                 });
+                this.$el.addClass("o_sign_oca_action");
                 return this.component.mount(this.$(".o_content")[0]);
             },
             getState: function () {

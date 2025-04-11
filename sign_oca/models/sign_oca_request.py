@@ -437,7 +437,9 @@ class SignOcaRequestSigner(models.Model):
             "url": self.access_url,
         }
 
-    def action_sign(self, items, access_token=False, latitude=False, longitude=False):
+    def action_sign(
+        self, items, access_token=False, latitude=False, longitude=False, **kwargs
+    ):
         self.ensure_one()
         if self.signed_on:
             raise ValidationError(

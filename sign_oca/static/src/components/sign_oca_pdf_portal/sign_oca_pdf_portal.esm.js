@@ -42,7 +42,7 @@ export class SignOcaPdfPortal extends SignOcaPdf {
         super.postIframeFields(...arguments);
         this.checkFilledAll();
     }
-    async _onClickSign() {
+    async _onClickSign({extra = {}}) {
         const position = await this.getLocation();
         this.env.services
             .rpc({
@@ -52,6 +52,7 @@ export class SignOcaPdfPortal extends SignOcaPdf {
                     "/" +
                     this.props.access_token,
                 params: {
+                    ...extra,
                     items: this.info.items,
                     latitude: position && position.coords && position.coords.latitude,
                     longitude: position && position.coords && position.coords.longitude,

@@ -93,7 +93,7 @@ class PortalSign(CustomerPortal):
         website=True,
     )
     def get_sign_oca_sign_access(
-        self, signer_id, access_token, items, latitude=False, longitude=False
+        self, signer_id, access_token, items, latitude=False, longitude=False, **kwargs
     ):
         try:
             signer_sudo = self._document_check_access(
@@ -102,5 +102,9 @@ class PortalSign(CustomerPortal):
         except (AccessError, MissingError):
             return request.redirect("/my")
         return signer_sudo.action_sign(
-            items, access_token=access_token, latitude=latitude, longitude=longitude
+            items,
+            access_token=access_token,
+            latitude=latitude,
+            longitude=longitude,
+            **kwargs
         )

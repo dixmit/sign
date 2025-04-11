@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2025 Dixmit
+     License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
+<odoo>
+
+    <record model="ir.ui.view" id="sign_oca_role_form_view">
+        <field name="model">sign.oca.role</field>
+        <field name="inherit_id" ref="sign_oca.sign_oca_role_form_view" />
+        <field name="arch" type="xml">
+            <field name="partner_selection_policy" position="before">
+                <field name="afirma" />
+            </field>
+        </field>
+    </record>
+
+
+
+</odoo>
